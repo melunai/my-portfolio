@@ -1,0 +1,10 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Фамилия;Имя;;;
+FN:Имя Фамилия
+TITLE:Frontend / Full-Stack Developer
+EMAIL;type=INTERNET;type=WORK:you@example.com
+URL;type=HOME:https://yourdomain.com
+item1.URL;type=pref:https://github.com/yourname
+item2.URL:https://www.linkedin.com/in/yourname/
+END:VCARD
