@@ -1,4 +1,4 @@
-import { Github, Linkedin,Moon, Sun, Menu, X } from "lucide-react";
+import { Github, Linkedin, Menu, X } from "lucide-react";
 import { DATA } from "../data";
 import ThemeToggle from "./ThemeToggle";
 import { useState } from 'react';

@@ -1,5 +1,5 @@
-import { toggleTheme } from '../theme/themeStore';
 import { useEffect, useState } from 'react';
+import { toggleTheme } from '../theme/tStore';
 
 export default function ThemeToggle() {
   const [isDark, setIsDark] = useState(false);

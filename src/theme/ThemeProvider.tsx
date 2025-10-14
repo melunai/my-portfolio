@@ -1,6 +1,6 @@
 // src/theme/ThemeProvider.tsx
 import { useEffect, type PropsWithChildren } from 'react';
-import { getInitialTheme, applyTheme } from './themeStore';
+import { getInitialTheme, applyTheme } from './tStore';
 
 export default function ThemeProvider({ children }: PropsWithChildren) {
   useEffect(() => {
