@@ -29,7 +29,6 @@ body {
   border: 1px solid transparent;
 }
 .btn-primary:hover { background: var(--accent-600); }
-
 .input {
   @apply rounded-xl px-3 py-2 text-sm outline-none transition;
   background: var(--card);
