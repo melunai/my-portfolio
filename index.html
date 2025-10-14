@@ -2,23 +2,50 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <meta name="color-scheme" content="light dark" />
+
+    <!-- Предварительная установка темы до загрузки стилей -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme');
+          var system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          var t = stored || system;
+          var root = document.documentElement;
+          root.dataset.theme = t;
+          if (t === 'dark') root.classList.add('dark');
+          else root.classList.remove('dark');
+        } catch (e) {}
+      })();
+    </script>
+
+    <!-- Минимальный фон до загрузки Tailwind (снимает вспышку) -->
+    <style>
+      /* Светлая/тёмная по классу, пока не подтянулись стили */
+      html { background: #ffffff; color: #0f172a; }
+      html.dark { background: #020617; color: #f8fafc; }
+      /* Если классов нет, подстрахуем системной темой */
+      @media (prefers-color-scheme: dark) {
+        html:not(.dark)[data-theme="dark"] { background: #020617; color: #f8fafc; }
+      }
+    </style>
+
     <title>Портфолио</title>
-    <link rel="icon" href="/favicon.ico" />
-
-    <!-- System UI + интер + fallback, быстро и современно -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-
-    <!-- Open Graph -->
-    <meta property="og:title" content="Портфолио" />
-    <meta property="og:description" content="Проекты, навыки и контакты" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="/og-image.png" />
-    <meta name="theme-color" content="#0f172a" />
   </head>
-  <body class="antialiased bg-white dark:bg-slate-900">
+  <body>
+    <noscript>
+      <style>
+        /* Если JS выключен, используем системную тему как fallback */
+        @media (prefers-color-scheme: dark) {
+          html { background: #020617; color: #f8fafc; }
+        }
+      </style>
+    </noscript>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

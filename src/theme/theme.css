@@ -1,0 +1,45 @@
+:root {
+  /* базовые токены (по желанию) */
+  --radius: 12px;
+  --shadow: 0 6px 24px rgba(0,0,0,.08);
+}
+
+/* Светлая тема */
+:root[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-elev: #f6f7f9;
+  --text: #0e1013;
+  --muted: #606775;
+  --primary: #2563eb;
+  --primary-contrast: #ffffff;
+  --border: #e5e7eb;
+  --btn-bg: #ffffff;
+
+  --card-bg: #ffffff;
+  --card-border: #e5e7eb;
+  --link: #2563eb;
+}
+
+/* Тёмная тема */
+:root[data-theme="dark"] {
+  --bg: #0b0e12;
+  --bg-elev: #131820;
+  --text: #f3f5f7;
+  --muted: #a0a7b4;
+  --primary: #60a5fa;
+  --primary-contrast: #0b0e12;
+  --border: #242a33;
+  --btn-bg: #171b22;
+
+  --card-bg: #11151b;
+  --card-border: #242a33;
+  --link: #93c5fd;
+}
+
+a { color: var(--link); }
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}

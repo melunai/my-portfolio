@@ -18,22 +18,6 @@ import ConfettiRain from "./components/ConfettiRain";
 import PinkRibbons from "./components/PinkRibbons";
 
 export default function App() {
-  const [dark, setDark] = useState<boolean>(() => {
-    const saved = localStorage.getItem("theme");
-    return saved ? saved === "dark" : true;
-  });
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (dark) {
-      root.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      root.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
-  }, [dark]);
-
   useEffect(() => {
     document.title = "Портфолио — Главная";
   }, []);
@@ -47,7 +31,7 @@ export default function App() {
       <ConfettiRain density={28} />
       <KawaiiFrame />
       <GridTexture />
-      <Header dark={dark} toggleDark={() => setDark((v) => !v)} />
+      <Header/>
       <main id="main" className="mx-auto max-w-6xl px-4 z-10 relative">
         <Hero />
         <Metrics />

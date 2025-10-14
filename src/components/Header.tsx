@@ -1,10 +1,10 @@
-import { Github, Linkedin, Moon, Sun, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { Github, Linkedin,Moon, Sun, Menu, X } from "lucide-react";
 import { DATA } from "../data";
+import ThemeToggle from "./ThemeToggle";
+import { useState } from 'react';
 
-type Props = { dark: boolean; toggleDark: () => void };
+export default function Header() {
 
-export default function Header({ dark, toggleDark }: Props) {
   const [open, setOpen] = useState(false);
   const nav = [
     { id: "home", label: "Главная" },
@@ -42,19 +42,33 @@ export default function Header({ dark, toggleDark }: Props) {
           </nav>
 
           <div className="flex items-center gap-3">
-            <a href={DATA.github} target="_blank" rel="noreferrer" className="opacity-80 hover:opacity-100" aria-label="GitHub">
+            <a
+              href={DATA.github}
+              target="_blank"
+              rel="noreferrer"
+              className="opacity-80 hover:opacity-100"
+              aria-label="GitHub"
+            >
               <Github className="size-5" />
             </a>
-            <a href={DATA.linkedin} target="_blank" rel="noreferrer" className="opacity-80 hover:opacity-100" aria-label="LinkedIn">
+            <a
+              href={DATA.linkedin}
+              target="_blank"
+              rel="noreferrer"
+              className="opacity-80 hover:opacity-100"
+              aria-label="LinkedIn"
+            >
               <Linkedin className="size-5" />
             </a>
+
+            <ThemeToggle />
+
             <button
-              onClick={toggleDark}
-              className="inline-flex items-center gap-2 rounded-xl px-3 py-1 text-sm border bg-white/70 dark:bg-white/5 border-rose-200/50 dark:border-rose-100/10 hover:bg-white/90 dark:hover:bg-white/10"
+              className="md:hidden inline-flex items-center rounded-xl border border-rose-200/50 dark:border-rose-100/10 p-2"
+              onClick={() => setOpen((v) => !v)}
+              aria-label="Menu"
+              aria-expanded={open}
             >
-              {dark ? (<><Sun className="size-4" /><span className="hidden sm:inline">Светлая</span></>) : (<><Moon className="size-4" /><span className="hidden sm:inline">Тёмная</span></>)}
-            </button>
-            <button className="md:hidden inline-flex items-center rounded-xl border border-rose-200/50 dark:border-rose-100/10 p-2" onClick={() => setOpen((v) => !v)} aria-label="Menu">
               {open ? <X className="size-5" /> : <Menu className="size-5" />}
             </button>
           </div>
@@ -64,7 +78,12 @@ export default function Header({ dark, toggleDark }: Props) {
           <div className="md:hidden pb-3">
             <nav className="flex flex-col gap-2 text-sm">
               {nav.map((n) => (
-                <a key={n.id} href={`#${n.id}`} className="rounded-lg px-3 py-2 hover:bg-rose-50/80 dark:hover:bg-white/10" onClick={() => setOpen(false)}>
+                <a
+                  key={n.id}
+                  href={`#${n.id}`}
+                  className="rounded-lg px-3 py-2 hover:bg-rose-50/80 dark:hover:bg-white/10"
+                  onClick={() => setOpen(false)}
+                >
                   {n.label}
                 </a>
               ))}
