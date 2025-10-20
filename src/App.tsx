@@ -18,21 +18,38 @@ import ConfettiRain from "./components/ConfettiRain";
 import PinkRibbons from "./components/PinkRibbons";
 import { DATA } from "./data";
 
-export default function App() {
+import { LiveModeProvider, LiveModeToggle, useLiveMode } from "./components/LiveMode";
+
+function AppInner() {
+  const { live } = useLiveMode();
+
   useEffect(() => {
     document.title = `${DATA.nick} — портфолио`;
   }, []);
 
   return (
-    <div className="min-h-dvh relative bg-gradient-to-b from-rose-800/30 to-rose-100/90 dark:from-slate-950 dark:to-slate-950 text-slate-800 dark:text-slate-100">
+    <div
+      className={[
+        "min-h-dvh relative text-slate-800 dark:text-slate-100 live-container",
+        // базовый фон остаётся, но при live он переопределится CSS-анимацией
+        "bg-gradient-to-b from-rose-800/30 to-rose-100/90 dark:from-slate-950 dark:to-slate-950",
+        live ? "is-live" : "",
+      ].join(" ")}
+    >
+      {/* Декор и фон — теперь ShaderBg сверху и явно виден */}
       <BackgroundDecor />
+
       <ScrollProgress />
-      <FloatingBubbles />
+      {/* В live режиме пузырей больше и они быстрее (через пропсы) */}
+      <FloatingBubbles live={live} />
+
       <PinkRibbons />
-      <ConfettiRain density={28} />
+      {/* В live — больше конфетти */}
+      <ConfettiRain density={live ? 48 : 28} />
       <KawaiiFrame />
       <GridTexture />
-      <Header/>
+
+      <Header />
       <main id="main" className="mx-auto max-w-6xl px-4 z-10 relative">
         <Hero />
         <Metrics />
@@ -44,6 +61,17 @@ export default function App() {
         <Contact />
         <Footer />
       </main>
+
+      {/* Фиксируем Live Mode тумблер поверх */}
+      <LiveModeToggle />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <LiveModeProvider>
+      <AppInner />
+    </LiveModeProvider>
   );
 }
