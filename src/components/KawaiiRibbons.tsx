@@ -1,16 +1,7 @@
-import React from "react";
 
-/**
- * Кавайные ленты по диагоналям:
- * - концы уходят за экран благодаря координатам за пределами viewBox
- * - мягкое затухание концов через линейный градиент
- * - сниженная визуальная нагрузка: тоньше линии, меньше opacity, медленнее анимации
- *
- * Цвета: --accent / --accent-600 / --glow
- */
 export default function KawaiiRibbons({
   glow = true,
-}: { glow?: boolean }) {
+}: { glow?: boolean , density?: number}) {
   return (
     <svg
       className="absolute inset-0 pointer-events-none"
