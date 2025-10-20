@@ -1,20 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 type Piece = {
   id: number;
-  x: number;        // стартовое X в vw
+  x: number;        // vw
   size: number;     // px
-  rotate: number;   // стартовый поворот
-  hue: number;      // оттенок (вокруг розового)
-  duration: number; // сек
-  delay: number;    // сек
-  side: "left" | "right"; // с какого бока падает
+  rotate: number;   // deg
+  duration: number; // s
+  delay: number;    // s
+  side: 'left' | 'right';
 };
 
-/**
- * Лёгкий конфетти-дождик по бокам.
- * Без библиотек, с бережной производительностью и рандомизацией.
- */
 export default function ConfettiRain({ density = 24 }: { density?: number }) {
   const [pieces, setPieces] = useState<Piece[]>([]);
 
@@ -23,11 +18,10 @@ export default function ConfettiRain({ density = 24 }: { density?: number }) {
       const fromLeft = Math.random() > 0.5;
       return {
         id: i,
-        side: fromLeft ? "left" : "right",
-        x: fromLeft ? Math.random() * 12 : 88 + Math.random() * 12, // 0-12vw или 88-100vw
+        side: fromLeft ? 'left' : 'right',
+        x: fromLeft ? Math.random() * 12 : 88 + Math.random() * 12,
         size: 6 + Math.random() * 10,
         rotate: Math.random() * 360,
-        hue: 320 + Math.random() * 30, // розовый диапазон (320-350)
         duration: 6 + Math.random() * 6,
         delay: Math.random() * 8,
       };
@@ -36,10 +30,7 @@ export default function ConfettiRain({ density = 24 }: { density?: number }) {
   }, [density]);
 
   return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 overflow-hidden"
-    >
+    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
       {pieces.map((p) => (
         <span
           key={p.id}
@@ -51,12 +42,10 @@ export default function ConfettiRain({ density = 24 }: { density?: number }) {
             height: p.size * 2,
             borderRadius: 4,
             transform: `rotate(${p.rotate}deg)`,
-            background: `linear-gradient(180deg, hsl(${p.hue} 80% 72%) 0%, hsl(${
-              p.hue - 10
-            } 85% 58%) 100%)`,
-            boxShadow: `0 4px 12px -4px hsl(${p.hue} 70% 60% / .45)`,
+            background: `linear-gradient(180deg, var(--confetti1) 0%, var(--confetti2) 100%)`,
+            boxShadow: `0 4px 12px -4px var(--confetti2)`,
             animation: `${
-              p.side === "left" ? "confettiFallL" : "confettiFallR"
+              p.side === 'left' ? 'confettiFallL' : 'confettiFallR'
             } ${p.duration}s linear ${p.delay}s infinite`,
             opacity: 0.9,
           }}

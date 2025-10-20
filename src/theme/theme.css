@@ -1,45 +1,96 @@
+/* === Design tokens — общие === */
 :root {
-  /* базовые токены (по желанию) */
   --radius: 12px;
   --shadow: 0 6px 24px rgba(0,0,0,.08);
 }
 
-/* Светлая тема */
+/* === Светлая тема === */
 :root[data-theme="light"] {
+  /* базовые */
   --bg: #ffffff;
-  --bg-elev: #f6f7f9;
-  --text: #0e1013;
+  --fg: #0e1013;
   --muted: #606775;
-  --primary: #2563eb;
-  --primary-contrast: #ffffff;
   --border: #e5e7eb;
-  --btn-bg: #ffffff;
 
-  --card-bg: #ffffff;
-  --card-border: #e5e7eb;
-  --link: #2563eb;
+  /* поверхности */
+  --elevated: #f6f7f9;
+  --card: #ffffff;
+
+  /* акценты / интенты */
+  --accent: #2563eb;     /* blue-600 */
+  --accent-600: #1d4ed8; /* hover */
+  --accent-50: #eff6ff;  /* chip bg */
+  --ring: #6366f1;       /* indigo-500 */
+  --link: var(--accent);
+
+  /* алиасы на совместимость со старыми именами */
+  --text: var(--fg);
+  --btn-bg: var(--card);
+  --btn-fg: var(--fg);
+  --btn-border: var(--border);
+
+  /* стекло / эффекты */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(251, 113, 133, 0.4);
+  --bubble: rgba(244, 114, 182, 0.4);
+  --grid: rgba(14, 165, 233, 0.15);
+  --glow: rgba(244, 114, 182, 0.45);
+
+  /* элементы */
+  --chip-bg: rgba(255, 255, 255, 0.7);
+  --chip-border: rgba(251, 113, 133, 0.4);
+  --chip-hover: rgba(255, 255, 255, 0.9);
+
+  /* конфетти / декор */
+  --confetti1: hsl(330 80% 70%);
+  --confetti2: hsl(340 85% 60%);
+  --decor-glow: rgba(244, 114, 182, 0.35);
 }
 
-/* Тёмная тема */
+/* === Тёмная тема === */
 :root[data-theme="dark"] {
   --bg: #0b0e12;
-  --bg-elev: #131820;
-  --text: #f3f5f7;
+  --fg: #f3f5f7;
   --muted: #a0a7b4;
-  --primary: #60a5fa;
-  --primary-contrast: #0b0e12;
   --border: #242a33;
-  --btn-bg: #171b22;
 
-  --card-bg: #11151b;
-  --card-border: #242a33;
+  --elevated: #131820;
+  --card: #11151b;
+
+  --accent: #60a5fa;     /* sky-400/500 */
+  --accent-600: #3b82f6;
+  --accent-50: #0b1220;
+  --ring: #7aa2ff;
   --link: #93c5fd;
+
+  --text: var(--fg);
+  --btn-bg: color-mix(in oklab, var(--card), white 4%);
+  --btn-fg: var(--fg);
+  --btn-border: var(--border);
+
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(251, 113, 133, 0.15);
+  --bubble: rgba(251, 113, 133, 0.2);
+  --grid: rgba(14, 165, 233, 0.08);
+  --glow: rgba(244, 114, 182, 0.3);
+
+  --chip-bg: rgba(255, 255, 255, 0.05);
+  --chip-border: rgba(251, 113, 133, 0.15);
+  --chip-hover: rgba(255, 255, 255, 0.1);
+
+  --confetti1: hsl(320 80% 72%);
+  --confetti2: hsl(330 85% 58%);
+  --decor-glow: rgba(244, 114, 182, 0.25);
 }
 
+/* Примеры (необязательно) */
 a { color: var(--link); }
 .card {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
+
+:root[data-theme="light"] { --glow: rgba(244, 114, 182, 0.35); }
+:root[data-theme="dark"]  { --glow: rgba(244, 114, 182, 0.28); }

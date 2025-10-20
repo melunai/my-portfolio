@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 type Bubble = {
   id: number;
-  size: number;     // размер px
-  left: number;     // позиция слева %
-  duration: number; // длительность анимации
-  delay: number;    // задержка старта
+  size: number;     // px
+  left: number;     // %
+  duration: number; // s
+  delay: number;    // s
 };
 
 export default function FloatingBubbles() {
@@ -23,15 +23,13 @@ export default function FloatingBubbles() {
   }, []);
 
   return (
-    <div
-      aria-hidden
-      className="absolute inset-0 overflow-hidden pointer-events-none"
-    >
+    <div aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none">
       {bubbles.map((b) => (
         <div
           key={b.id}
-          className="absolute rounded-full bg-rose-200/40 dark:bg-rose-400/20 backdrop-blur-sm"
+          className="absolute rounded-full backdrop-blur-sm"
           style={{
+            background: 'var(--bubble)',
             width: b.size,
             height: b.size,
             left: `${b.left}%`,

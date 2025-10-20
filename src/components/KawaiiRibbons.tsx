@@ -1,0 +1,125 @@
+import React from "react";
+
+/**
+ * Кавайные ленты по диагоналям:
+ * - концы уходят за экран благодаря координатам за пределами viewBox
+ * - мягкое затухание концов через линейный градиент
+ * - сниженная визуальная нагрузка: тоньше линии, меньше opacity, медленнее анимации
+ *
+ * Цвета: --accent / --accent-600 / --glow
+ */
+export default function KawaiiRibbons({
+  glow = true,
+}: { glow?: boolean }) {
+  return (
+    <svg
+      className="absolute inset-0 pointer-events-none"
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none"
+      aria-hidden
+    >
+      <defs>
+        {/* Блик по ленте (мягкий переход акцентных цветов) */}
+        <linearGradient id="rib-sheen" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0%"  stopColor="var(--accent)" />
+          <stop offset="50%" stopColor="var(--accent-600)" />
+          <stop offset="100%" stopColor="var(--accent)" />
+        </linearGradient>
+
+        {/* Градиент для затухания концов (прозрачные края) */}
+        <linearGradient id="rib-fade" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0%"   stopColor="var(--accent)" stopOpacity="0" />
+          <stop offset="10%"  stopColor="var(--accent)" stopOpacity=".75" />
+          <stop offset="90%"  stopColor="var(--accent-600)" stopOpacity=".75" />
+          <stop offset="100%" stopColor="var(--accent-600)" stopOpacity="0" />
+        </linearGradient>
+
+        {/* Мягкое свечение вокруг ленты */}
+        <filter id="rib-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feDropShadow dx="0" dy="0" stdDeviation="1.2" floodColor="var(--glow)" floodOpacity="0.85" />
+        </filter>
+
+        <style>{`
+          @keyframes ribBreath {
+            0%,100% { transform: translateY(0) }
+            50%     { transform: translateY(-.35px) }
+          }
+          @keyframes ribDash {
+            0%   { stroke-dashoffset: 0 }
+            100% { stroke-dashoffset: -120 }
+          }
+        `}</style>
+      </defs>
+
+      {/* Лента: слева-сверху → вправо-вниз (чуть выходит за экран) */}
+      <g filter={glow ? "url(#rib-glow)" : undefined}>
+        {/* Подложка-«дыхание» (очень деликатная) */}
+        <path
+          /* начало X=-8, конец X=108 — уводим за края viewBox */
+          d="M -8 12 C 22 2, 36 6, 50 14
+             S 78 30, 108 42"
+          fill="none"
+          stroke="var(--accent)"
+          strokeOpacity="0.18"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          style={{ animation: "ribBreath 5s ease-in-out infinite" }}
+        />
+        {/* Бегущий штриховой блик, тонкий и длинный */}
+        <path
+          d="M -8 12 C 22 2, 36 6, 50 14
+             S 78 30, 108 42"
+          fill="none"
+          stroke="url(#rib-sheen)"
+          strokeWidth="1.1"
+          strokeLinecap="round"
+          strokeDasharray="14 28"
+          style={{ animation: "ribDash 12s linear infinite" }}
+          opacity=".7"
+        />
+        {/* Основной контур с затухающими краями */}
+        <path
+          d="M -8 12 C 22 2, 36 6, 50 14
+             S 78 30, 108 42"
+          fill="none"
+          stroke="url(#rib-fade)"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+        />
+      </g>
+
+      {/* Лента: справа-сверху → влево-вниз (зеркальная, тоже уходит за экран) */}
+      <g filter={glow ? "url(#rib-glow)" : undefined}>
+        <path
+          d="M 108 10 C 78 18, 64 26, 50 36
+             S 24 58, -8 88"
+          fill="none"
+          stroke="var(--accent)"
+          strokeOpacity="0.18"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          style={{ animation: "ribBreath 5.4s ease-in-out .3s infinite" }}
+        />
+        <path
+          d="M 108 10 C 78 18, 64 26, 50 36
+             S 24 58, -8 88"
+          fill="none"
+          stroke="url(#rib-sheen)"
+          strokeWidth="1.1"
+          strokeLinecap="round"
+          strokeDasharray="14 28"
+          style={{ animation: "ribDash 12s linear reverse infinite" }}
+          opacity=".7"
+        />
+        <path
+          d="M 108 10 C 78 18, 64 26, 50 36
+             S 24 58, -8 88"
+          fill="none"
+          stroke="url(#rib-fade)"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+        />
+      </g>
+    </svg>
+  );
+}

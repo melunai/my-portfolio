@@ -18,7 +18,7 @@ export default function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur supports-[backdrop-filter]:bg-white/70 dark:supports-[backdrop-filter]:bg-slate-900/60 border-b border-rose-200/40 dark:border-rose-100/10">
+    <header className="sticky top-0 z-50 backdrop-blur supports-[backdrop-filter]:bg-[var(--bg)] dark:supports-[backdrop-filter]:bg-[var(--bg)] border-b border-rose-200/40 dark:border-rose-100/10">
       <div className="mx-auto max-w-6xl px-4">
         <div className="flex h-16 items-center justify-between">
           <a href="#home" className="font-semibold tracking-tight">
