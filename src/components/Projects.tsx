@@ -1,43 +1,60 @@
 import Section from "./Section";
+import SectionLead from "./SectionLead";
 import ProjectCard from "./ProjectCard";
-import Chip from "./Chip";
-import { useMemo, useState } from "react";
-import { DATA } from "../data";
 import ProjectModal from "./ProjectModal";
+import { useMemo, useState } from "react";
+import { DATA, type Project } from "../data";
 
 export default function Projects() {
-  const [active, setActive] = useState<string>("Все");
-  const [open, setOpen] = useState<typeof DATA.projects[number] | null>(null);
+  const [active, setActive] = useState<Project | null>(null);
+  const [filter, setFilter] = useState<string | null>(null);
 
-  const allStacks = useMemo(() => {
-    const set = new Set<string>(["Все"]);
-    DATA.projects.forEach((p) => p.stack.forEach((s) => set.add(s)));
-    return Array.from(set);
-  }, []);
+  const projects = DATA.projects;
 
-  const list = useMemo(() => {
-    if (active === "Все") return DATA.projects;
-    return DATA.projects.filter((p) => p.stack.includes(active));
-  }, [active]);
+  const allTags = useMemo(() => {
+    const s = new Set<string>();
+    projects.forEach(p => p.stack.forEach(t => s.add(t)));
+    return Array.from(s).sort();
+  }, [projects]);
+
+  const shown = useMemo(() => {
+    if (!filter) return projects;
+    return projects.filter(p => p.stack.includes(filter));
+  }, [projects, filter]);
 
   return (
-    <Section id="projects" title="Избранные проекты">
-      <p className="text-slate-600 dark:text-slate-300 max-w-2xl mb-6">
-        Коммерческие и pet-проекты. Можно отфильтровать по стеку.
-      </p>
-      <div className="flex flex-wrap gap-2 mb-6">
-        {allStacks.map((s) => (
-          <Chip key={s} active={active === s} onClick={() => setActive(s)}>
-            {s}
-          </Chip>
+    <Section id="projects" title="Проекты">
+      <SectionLead>
+        Подборка недавних работ и инициатив. От прототипов до интегрированных решений.
+      </SectionLead>
+
+      {/* фильтр по тегу */}
+      <div className="mb-4 flex flex-wrap gap-2">
+        <button
+          onClick={() => setFilter(null)}
+          className={`px-3 py-1 rounded-full border text-sm ${!filter ? "bg-rose-500 text-white border-transparent" : "border-rose-100/20"}`}
+        >
+          Все
+        </button>
+        {allTags.map(t => (
+          <button
+            key={t}
+            onClick={() => setFilter(t === filter ? null : t)}
+            className={`px-3 py-1 rounded-full border text-sm ${t === filter ? "bg-rose-500 text-white border-transparent" : "border-rose-100/20"}`}
+          >
+            {t}
+          </button>
         ))}
       </div>
-      <div className="grid md:grid-cols-2 gap-6">
-        {list.map((p) => (
-          <ProjectCard key={p.title} project={p} onOpen={setOpen} />
+
+      {/* сетка карточек */}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {shown.map(p => (
+          <ProjectCard key={p.title} project={p} onOpen={setActive} />
         ))}
       </div>
-      <ProjectModal project={open} onClose={() => setOpen(null)} />
+
+      <ProjectModal project={active} onClose={() => setActive(null)} />
     </Section>
   );
 }

@@ -1,10 +1,9 @@
 import { Github, Linkedin, Menu, X } from "lucide-react";
 import { DATA } from "../data";
 import ThemeToggle from "./ThemeToggle";
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function Header() {
-
   const [open, setOpen] = useState(false);
   const nav = [
     { id: "home", label: "Главная" },
@@ -23,7 +22,7 @@ export default function Header() {
         <div className="flex h-16 items-center justify-between">
           <a href="#home" className="font-semibold tracking-tight">
             <span className="bg-gradient-to-r from-rose-500 via-pink-500 to-fuchsia-500 bg-clip-text text-transparent">
-              {DATA.name.split(" ")[0]}
+              {DATA.nick}
             </span>
             <span className="text-rose-400">♡</span>
           </a>
@@ -40,28 +39,19 @@ export default function Header() {
               </a>
             ))}
           </nav>
+
           <div className="flex items-center gap-3">
-            <a
-              href={DATA.github}
-              target="_blank"
-              rel="noreferrer"
-              className="opacity-80 hover:opacity-100"
-              aria-label="GitHub"
-            >
-              <Github className="size-5" />
-            </a>
-            <a
-              href={DATA.linkedin}
-              target="_blank"
-              rel="noreferrer"
-              className="opacity-80 hover:opacity-100"
-              aria-label="LinkedIn"
-            >
-              <Linkedin className="size-5" />
-            </a>
-
+            {DATA.github && (
+              <a href={DATA.github} target="_blank" rel="noreferrer" className="opacity-80 hover:opacity-100" aria-label="GitHub">
+                <Github className="size-5" />
+              </a>
+            )}
+            {DATA.linkedin && (
+              <a href={DATA.linkedin} target="_blank" rel="noreferrer" className="opacity-80 hover:opacity-100" aria-label="LinkedIn">
+                <Linkedin className="size-5" />
+              </a>
+            )}
             <ThemeToggle />
-
             <button
               className="md:hidden inline-flex items-center rounded-xl border border-rose-200/50 dark:border-rose-100/10 p-2"
               onClick={() => setOpen((v) => !v)}

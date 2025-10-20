@@ -15,8 +15,7 @@ export default function Hero() {
           className="md:col-span-2 relative"
         >
           <h1 className="text-3xl md:text-5xl font-semibold tracking-tight leading-tight">
-            Привет, я {DATA.name} —
-            <br />
+            Привет, я {DATA.name} —<br />
             <span className="text-slate-500">{DATA.role}</span>
           </h1>
           <p className="mt-4 text-slate-600 dark:text-slate-300 md:text-lg">
@@ -26,20 +25,19 @@ export default function Hero() {
             <a
               href="#projects"
               className="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-medium text-white shadow-glow-pink"
-              style={{
-                background:
-                  "linear-gradient(90deg, #f472b6 0%, #ec4899 50%, #db2777 100%)",
-              }}
+              style={{ background: "linear-gradient(90deg,#f472b6 0%,#ec4899 50%,#db2777 100%)" }}
             >
               Смотреть проекты
             </a>
-            <a
-              href={DATA.cvUrl}
-              className="inline-flex items-center gap-2 rounded-xl border px-5 py-3 text-sm border-rose-200/60 dark:border-rose-100/10 bg-white/70 dark:bg-white/5 hover:bg-white/90 dark:hover:bg-white/10"
-              download
-            >
-              Резюме (PDF)
-            </a>
+            {DATA.cvUrl && (
+              <a
+                href={DATA.cvUrl}
+                className="inline-flex items-center gap-2 rounded-xl border px-5 py-3 text-sm border-rose-200/60 dark:border-rose-100/10 bg-white/70 dark:bg-white/5 hover:bg-white/90 dark:hover:bg-white/10"
+                download
+              >
+                Резюме (PDF)
+              </a>
+            )}
             <a
               href="/me.vcf"
               className="inline-flex items-center gap-2 rounded-xl border px-5 py-3 text-sm border-rose-200/60 dark:border-rose-100/10 bg-white/70 dark:bg-white/5 hover:bg-white/90 dark:hover:bg-white/10"
