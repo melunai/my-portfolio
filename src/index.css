@@ -189,7 +189,7 @@ body {
   --text-muted: #cbd5e1; /* мелкий/вторичный (slate-300) */
   color-scheme: dark;
 
-    --ribbon-accent:    #7c3aed;        /* violet-600 */
+  --ribbon-accent:    #7c3aed;        /* violet-600 */
   --ribbon-accent-o:  0.24;
   --ribbon-sheen-start: rgba(167,139,250,0.85); /* violet-400 */
   --ribbon-sheen-end:   rgba(124,58,237,0.30);  /* violet-600 softer */
@@ -223,3 +223,50 @@ body {
   color: var(--text) !important;
 }
 
+/* появление боковой панели */
+@keyframes slideIn {
+  from { transform: translateX(16px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+.animate-slide-in { animation: slideIn .22s ease-out both; }
+
+/* подпрыгивающее сердечко в логотипе */
+@keyframes kawaiiBob {
+  0%,100% { transform: translateY(0) rotate(0); }
+  50%     { transform: translateY(-2px) rotate(-2deg); }
+}
+.animate-kawaii-bob { animation: kawaiiBob 2.2s ease-in-out infinite; }
+
+/* градиентный текст логотипа (использует твои токены) */
+.kawaii-gradient-text {
+  background: linear-gradient(90deg, var(--ribbon-sheen-start), var(--accent), var(--ribbon-sheen-end));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* динамичные ссылки с «магнитным» ховером и подчёркиванием */
+.kawaii-link {
+  position: relative;
+  transition: color .2s ease, background .2s ease, transform .2s ease;
+  color: var(--text);
+  will-change: transform;
+}
+.kawaii-link::after {
+  content: "";
+  position: absolute; left: 12px; right: 12px; bottom: 8px;
+  height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--ribbon-sheen-start), transparent);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform .25s ease;
+  opacity: .85;
+}
+.kawaii-link:hover { transform: translate(var(--x, 0px), var(--y, 0px)) translateZ(0); }
+.kawaii-link:hover::after { transform: scaleX(1); }
+
+/* активный пункт — нежная подсветка */
+.kawaii-link.is-active {
+  color: var(--text);
+  text-shadow: 0 0 10px color-mix(in oklab, var(--accent) 30%, transparent);
+}
