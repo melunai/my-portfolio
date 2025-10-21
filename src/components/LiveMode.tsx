@@ -4,6 +4,33 @@ import { createPortal } from "react-dom";
 type Ctx = { live: boolean; setLive: (v: boolean) => void };
 const LiveModeContext = createContext<Ctx | null>(null);
 
+const PINK_PALETTE: Record<string, string> = {
+  "--accent": "#ec4899",               // pink-500
+  "--glow": "#f472b6",                 // rose-400
+  "--decor-glow": "rgba(236,72,153,.32)",
+  "--bubble": "rgba(236,72,153,.18)",
+  "--confetti1": "#f472b6",
+  "--confetti2": "#db2777",
+  "--grid": "rgba(244,114,182,.15)",
+};
+
+function applyPalette(on: boolean) {
+  const el = document.documentElement;
+  if (on) {
+    for (const [k, v] of Object.entries(PINK_PALETTE)) {
+      el.style.setProperty(k, v);
+    }
+    el.setAttribute("data-live", "on");
+  } else {
+    // снимаем live и чистим только те ключи, которые мы устанавливали,
+    // чтобы вернуться к значениям из CSS
+    el.removeAttribute("data-live");
+    for (const k of Object.keys(PINK_PALETTE)) {
+      el.style.removeProperty(k);
+    }
+  }
+}
+
 export function LiveModeProvider({ children }: React.PropsWithChildren) {
   const [live, setLive] = useState<boolean>(false);
 
@@ -18,7 +45,7 @@ export function LiveModeProvider({ children }: React.PropsWithChildren) {
     try {
       localStorage.setItem("live-mode", live ? "1" : "0");
     } catch {}
-    document.documentElement.dataset.live = live ? "on" : "off";
+    applyPalette(live);
   }, [live]);
 
   return (
