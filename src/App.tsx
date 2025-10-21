@@ -30,11 +30,13 @@ function AppInner() {
   return (
     <div
       className={[
-        "min-h-dvh relative text-slate-800 dark:text-slate-100 live-container",
+        "min-h-dvh relative text-slate-800 dark:text-slate-100 live-container theme-colors",
         // базовый фон остаётся, но при live он переопределится CSS-анимацией
         "bg-gradient-to-b from-rose-800/30 to-rose-100/90 dark:from-slate-950 dark:to-slate-950",
         live ? "is-live" : "",
       ].join(" ")}
+        style={{ background: "linear-gradient(to bottom, var(--bg-grad-from), var(--bg-grad-to))",  color: "var(--text)",}}
+        
     >
       {/* Декор и фон — теперь ShaderBg сверху и явно виден */}
       <BackgroundDecor />

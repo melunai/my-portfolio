@@ -137,3 +137,89 @@ body {
   background-size: 300% 300%;
   animation: bgFlow calc(22s * var(--anim-mult)) ease-in-out infinite;
 }
+
+/* === App background tokens (used by App container) === */
+:root {
+  --bg-grad-from: #ffffff;                 /* LIGHT default */
+  --bg-grad-to:   #ffffff;
+}
+
+/* Light theme */
+:root[data-theme="light"] {
+  /* ——— базовые цвета ——— */
+  --bg: #fffafc;                         /* едва-розовый фон */
+  --text: #0f172a;                       /* основной тёмно-синий текст */
+  --text-muted: #475569;                 /* вторичный (серо-синий) */
+
+  /* ——— карточки, стекло, чипы ——— */
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(244, 114, 182, 0.18); /* лёгкий розовый контур */
+  --chip-bg: rgba(255, 255, 255, 0.6);
+  --chip-hover: rgba(255, 255, 255, 0.8);
+  --chip-border: rgba(244, 114, 182, 0.22);
+  --grid: rgba(244, 114, 182, 0.08);
+
+  /* ——— акценты ——— */
+  --accent: #ec4899;       /* pink-500 */
+  --glow: #f472b6;         /* rose-400 */
+  --decor-glow: rgba(236,72,153,.28);
+  --bubble: rgba(236,72,153,.18);
+  --confetti1: #f472b6;
+  --confetti2: #db2777;
+
+  /* ——— фон градиента приложения ——— */
+  --bg-grad-from: #fffafc; /* почти белый с розовым подтоном */
+  --bg-grad-to:   #ffe4ec; /* нежный розово-персиковый */
+  color-scheme: light;
+
+    --ribbon-accent:    #ec4899;        /* pink-500 */
+  --ribbon-accent-o:  0.22;           /* непрозрачность основной линии */
+  --ribbon-sheen-start: rgba(244,114,182,0.95); /* rose-400 */
+  --ribbon-sheen-end:   rgba(236,72,153,0.35);  /* pink-500 softer */
+  --ribbon-fade:      rgba(236,72,153,0.28);
+}
+
+
+/* Dark theme */
+:root[data-theme="dark"] {
+  /* глубокий тёмный фон */
+  --bg-grad-from: #0b1220;
+  --bg-grad-to:   #0b1220;
+  --text: #e2e8f0;   /* slate-200 */
+  --text-muted: #cbd5e1; /* мелкий/вторичный (slate-300) */
+  color-scheme: dark;
+
+    --ribbon-accent:    #7c3aed;        /* violet-600 */
+  --ribbon-accent-o:  0.24;
+  --ribbon-sheen-start: rgba(167,139,250,0.85); /* violet-400 */
+  --ribbon-sheen-end:   rgba(124,58,237,0.30);  /* violet-600 softer */
+  --ribbon-fade:      rgba(88,28,135,0.42);     /* violet-900 w/ alpha */
+}
+
+/* Утилита (если хочешь класс вместо inline-style) */
+.app-bg {
+  background: linear-gradient(to bottom, var(--bg-grad-from), var(--bg-grad-to));
+}
+
+/* === Typography mapping inside the app === */
+.theme-colors { color: var(--text); }
+
+/* мелкий/вторичный текст */
+.theme-colors p,
+.theme-colors li,
+.theme-colors small,
+.theme-colors .text-sm,
+.theme-colors .text-xs,
+.theme-colors .opacity-70,
+.theme-colors .opacity-80 {
+  color: var(--text-muted) !important;
+}
+
+/* заголовки — всегда основным цветом */
+.theme-colors h1,
+.theme-colors h2,
+.theme-colors h3,
+.theme-colors h4 {
+  color: var(--text) !important;
+}
+
