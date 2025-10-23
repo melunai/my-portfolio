@@ -11,7 +11,6 @@ import Section from "./Section";
 import SectionLead from "./SectionLead";
 import { EXPERIENCE } from "../data";
 import {
-  Sparkles,
   Building2,
   CalendarDays,
   ChevronDown,
