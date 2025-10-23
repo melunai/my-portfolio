@@ -1,42 +1,30 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Section from "./Section";
 import GlassCard from "./GlassCard";
 import Chip from "./Chip";
-import { DATA } from "../data";
+import { DATA, skillMeta } from "../data";
 import Confetti from "react-confetti";
 
-// === Эмодзи и цвета по категориям ===
-const skillMeta: Record<string, { emoji: string; colors: [string, string, string] }> = {
-  TypeScript: { emoji: "🟦", colors: ["from-blue-200", "to-blue-300", "text-blue-900"] },
-  React: { emoji: "⚛️", colors: ["from-cyan-200", "to-cyan-300", "text-cyan-900"] },
-  Vite: { emoji: "⚡", colors: ["from-yellow-200", "to-yellow-300", "text-yellow-900"] },
-  Tailwind: { emoji: "🎨", colors: ["from-teal-200", "to-teal-300", "text-teal-900"] },
-  UnoCSS: { emoji: "🎯", colors: ["from-indigo-200", "to-indigo-300", "text-indigo-900"] },
-  JavaScript: { emoji: "🟨", colors: ["from-yellow-200", "to-yellow-300", "text-yellow-900"] },
-  HTML: { emoji: "🧱", colors: ["from-orange-200", "to-orange-300", "text-orange-900"] },
-  CSS: { emoji: "🎨", colors: ["from-sky-200", "to-sky-300", "text-sky-900"] },
-  Python: { emoji: "🐍", colors: ["from-green-200", "to-green-300", "text-green-900"] },
-  SQL: { emoji: "🗃️", colors: ["from-gray-200", "to-gray-300", "text-gray-900"] },
-  "MapLibre GL": { emoji: "🗺️", colors: ["from-lime-200", "to-lime-300", "text-lime-900"] },
-  "Mapbox GL": { emoji: "🌍", colors: ["from-blue-200", "to-blue-300", "text-blue-900"] },
-  "Redux Toolkit": { emoji: "🧠", colors: ["from-purple-200", "to-purple-300", "text-purple-900"] },
-  Zustand: { emoji: "🐻", colors: ["from-amber-200", "to-amber-300", "text-amber-900"] },
-  IndexedDB: { emoji: "🗄️", colors: ["from-slate-200", "to-slate-300", "text-slate-900"] },
-  "Service Worker": { emoji: "🔧", colors: ["from-zinc-200", "to-zinc-300", "text-zinc-900"] },
-};
-
 export default function Skills() {
-  const [confetti, setConfetti] = useState<{
-    key: number;
-    x: number;
-    y: number;
-  } | null>(null);
+  const [confetti, setConfetti] = useState<{ key: number; x: number; y: number } | null>(null);
 
-  const playSound = () => {
-    const audio = new Audio("/sounds/bubble.mp3");
-    audio.volume = 0.3;
-    audio.play();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const lastPlayRef = useRef(0);
+  const playBubble = () => {
+    const now = performance.now();
+    if (now - lastPlayRef.current < 120) return;
+    lastPlayRef.current = now;
+    if (!audioRef.current) {
+      const a = new Audio("/sounds/bubble.mp3");
+      a.volume = 0.35;
+      audioRef.current = a;
+    }
+    const a = audioRef.current;
+    try {
+      a.currentTime = 0;
+    } catch {}
+    a.play().catch(() => {});
   };
 
   const handleClick = (url: string, e: React.MouseEvent<HTMLDivElement>) => {
@@ -46,10 +34,8 @@ export default function Skills() {
       x: rect.left + rect.width / 2,
       y: rect.top + rect.height / 2,
     });
-
-    setTimeout(() => {
-      window.open(url, "_blank", "noopener,noreferrer");
-    }, 300);
+    playBubble();
+    setTimeout(() => window.open(url, "_blank", "noopener,noreferrer"), 300);
   };
 
   return (
@@ -62,16 +48,15 @@ export default function Skills() {
           viewport={{ once: true }}
           variants={{
             hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: { staggerChildren: 0.08 },
-            },
+            visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
           }}
         >
           {DATA.skills.map((s, i) => {
-            const meta = skillMeta[s.name];
-            const [from, to, textColor] = meta.colors;
-            const emoji = meta.emoji;
+            const meta = skillMeta[s.name] ?? {
+              emoji: "✨",
+              tone: "var(--accent)",
+            };
+
             return (
               <motion.div
                 key={`${s.name}-${i}`}
@@ -90,15 +75,32 @@ export default function Skills() {
                 }}
                 whileTap={{ scale: 0.9 }}
                 transition={{ type: "spring", stiffness: 300 }}
-                onHoverStart={playSound}
+                onHoverStart={playBubble}
                 onClick={(e) => handleClick(s.url, e)}
                 className="cursor-pointer"
               >
                 <Chip
-                  className={`px-5 py-3 rounded-2xl bg-gradient-to-br ${from} ${to} ${textColor} shadow-md hover:shadow-xl transition-all`}
+                  style={{
+                    ["--tone" as any]: meta.tone || "var(--accent)",
+                  }}
+                  className="
+                    px-5 py-3 rounded-2xl transition-all
+                    text-[color:var(--fg)]
+                    bg-[var(--card)] dark:bg-[color-mix(in oklab,var(--card),black_8%)]
+                    border border-[var(--border)]
+                    ring-1 ring-black/5 dark:ring-white/10
+                    hover:border-[color:var(--tone)]
+                    hover:shadow-[0_0_0_3px_var(--tone)]
+                    shadow-sm hover:shadow-md backdrop-blur-sm
+                  "
                 >
-                  <span className="drop-shadow-sm">{s.name}</span>
-                  <span className="ml-2 opacity-70">{emoji}</span>
+                  <span
+                    aria-hidden
+                    className="mr-2 inline-block size-2.5 rounded-full"
+                    style={{ background: "var(--tone)" }}
+                  />
+                  <span>{s.name}</span>
+                  <span className="ml-2 opacity-85">{meta.emoji}</span>
                 </Chip>
               </motion.div>
             );

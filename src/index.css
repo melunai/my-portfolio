@@ -276,3 +276,19 @@ body {
   isolation: isolate;
   contain: paint;
 }
+
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes gradient-flow {
+  to { --angle: 360deg; }
+}
+
+/* 2. Пружинящая точка */
+@keyframes pop-dot {
+  0%   { transform: scale(0.6);  opacity: 0; }
+  60%  { transform: scale(1.3);  opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}

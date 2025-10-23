@@ -194,3 +194,22 @@ export const TESTIMONIALS: Testimonial[] = [
     avatar: "/images/avatars/client3.jpg",
   },
 ];
+
+export const skillMeta: Record<string, { emoji: string; gradFrom: string; gradTo: string; tone?: string }> = {
+  TypeScript:    { emoji: "🟦", gradFrom: "from-blue-200",   gradTo: "to-blue-300",   tone: "#3178C6" },
+  React:         { emoji: "⚛️", gradFrom: "from-cyan-200",   gradTo: "to-cyan-300",   tone: "#61DAFB" },
+  Vite:          { emoji: "⚡",  gradFrom: "from-yellow-200", gradTo: "to-yellow-300", tone: "#FFC72C" },
+  Tailwind:      { emoji: "🎨", gradFrom: "from-teal-200",    gradTo: "to-teal-300",   tone: "#06B6D4" },
+  UnoCSS:        { emoji: "🎯", gradFrom: "from-indigo-200",  gradTo: "to-indigo-300", tone: "#5B5BD6" },
+  JavaScript:    { emoji: "🟨", gradFrom: "from-yellow-200", gradTo: "to-yellow-300", tone: "#F7DF1E" },
+  HTML:          { emoji: "🧱", gradFrom: "from-orange-200",  gradTo: "to-orange-300", tone: "#E34F26" },
+  CSS:           { emoji: "🎨", gradFrom: "from-sky-200",     gradTo: "to-sky-300",    tone: "#2965F1" },
+  Python:        { emoji: "🐍", gradFrom: "from-green-200",   gradTo: "to-green-300",  tone: "#3776AB" },
+  SQL:           { emoji: "🗃️", gradFrom: "from-gray-200",   gradTo: "to-gray-300",   tone: "#73808C" },
+  "MapLibre GL": { emoji: "🗺️", gradFrom: "from-lime-200",   gradTo: "to-lime-300",   tone: "#3FB950" },
+  "Mapbox GL":   { emoji: "🌍", gradFrom: "from-blue-200",    gradTo: "to-blue-300",   tone: "#1DA1F2" },
+  "Redux Toolkit":{emoji:"🧠", gradFrom: "from-purple-200",   gradTo: "to-purple-300", tone: "#764ABC" },
+  Zustand:       { emoji: "🐻", gradFrom: "from-amber-200",   gradTo: "to-amber-300",  tone: "#825826" },
+  IndexedDB:     { emoji: "🗄️", gradFrom: "from-slate-200",  gradTo: "to-slate-300",  tone: "#64748B" },
+  "Service Worker":{emoji:"🔧", gradFrom:"from-zinc-200",     gradTo:"to-zinc-300",    tone: "#9CA3AF" },
+};
