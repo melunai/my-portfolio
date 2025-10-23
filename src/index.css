@@ -270,3 +270,9 @@ body {
   color: var(--text);
   text-shadow: 0 0 10px color-mix(in oklab, var(--accent) 30%, transparent);
 }
+
+/* Модалка рендерится в <body> как .modal-portal — отключаем влияние любых глобальных фильтров */
+.modal-portal {
+  isolation: isolate;
+  contain: paint;
+}

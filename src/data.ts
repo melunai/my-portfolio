@@ -54,11 +54,22 @@ export const DATA = {
   ],
 
   skills: [
-    "TypeScript", "React", "Vite", "Tailwind", "UnoCSS",
-    "JavaScript", "HTML", "CSS",
-    "Python", "SQL",
-    "MapLibre GL", "Mapbox GL", "Redux Toolkit", "Zustand",
-    "IndexedDB", "Service Worker",
+    { name: "TypeScript", url: "https://www.typescriptlang.org" },
+    { name: "React", url: "https://react.dev" },
+    { name: "Vite", url: "https://vitejs.dev" },
+    { name: "Tailwind", url: "https://tailwindcss.com" },
+    { name: "UnoCSS", url: "https://unocss.dev" },
+    { name: "JavaScript", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
+    { name: "HTML", url: "https://developer.mozilla.org/en-US/docs/Web/HTML" },
+    { name: "CSS", url: "https://developer.mozilla.org/en-US/docs/Web/CSS" },
+    { name: "Python", url: "https://www.python.org" },
+    { name: "SQL", url: "https://www.w3schools.com/sql/" },
+    { name: "MapLibre GL", url: "https://maplibre.org" },
+    { name: "Mapbox GL", url: "https://docs.mapbox.com/mapbox-gl-js" },
+    { name: "Redux Toolkit", url: "https://redux-toolkit.js.org" },
+    { name: "Zustand", url: "https://zustand.docs.pmnd.rs" },
+    { name: "IndexedDB", url: "https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API" },
+    { name: "Service Worker", url: "https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API" },
   ],
 
   projects: <Project[]>[

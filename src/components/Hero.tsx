@@ -72,11 +72,11 @@ export default function Hero() {
               <MapPin className="size-4" /> {DATA.location}
             </div>
           </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {DATA.skills.slice(0, 6).map((s) => (
-              <Chip key={s}>{s}</Chip>
-            ))}
-          </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {DATA.skills.slice(0, 6).map((s) => (
+            <Chip key={s.name}>{s.name}</Chip>
+          ))}
+        </div>
           <a
             href={`mailto:${DATA.email}`}
             className="mt-5 inline-flex items-center justify-center gap-2 rounded-xl w-full bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-5 py-3 text-sm font-medium"
