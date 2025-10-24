@@ -1,5 +1,4 @@
 import Section from "./Section";
-import GlassCard from "./GlassCard";
 import { Mail, Github, Linkedin } from "lucide-react";
 import { DATA } from "../data";
 
