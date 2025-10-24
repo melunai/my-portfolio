@@ -61,7 +61,9 @@ export default function Hero() {
 
           <p
             className="mt-5 text-[15px] leading-relaxed max-w-2xl"
-            style={{ color: "color-mix(in oklab, var(--fg), var(--muted) 38%)" }}
+            style={{
+              color: "color-mix(in oklab, var(--fg), var(--muted) 38%)",
+            }}
           >
             {DATA.about}
           </p>
@@ -71,33 +73,33 @@ export default function Hero() {
             <a
               href="#projects"
               className="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-medium text-white
-                         bg-[var(--accent)] hover:bg-[var(--accent-600)]
-                         shadow-md transition-colors"
+             bg-[var(--accent)] hover:bg-[color-mix(in_oklab,var(--accent),white_15%)]
+             shadow-md transition-colors"
             >
               Смотреть проекты
             </a>
 
-            {DATA.cvUrl && (
-              <a
-                href={DATA.cvUrl}
-                download
-                className="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm
-                           bg-[var(--card)] text-[color:var(--fg)]
-                           border border-[var(--border)]
-                           hover:border-[var(--accent)]
-                           hover:shadow-[0_0_0_3px_color-mix(in_oklab,var(--accent),transparent_70%)]
-                           transition-all"
-              >
-                Резюме (PDF)
-              </a>
-            )}
+            <a
+              href={DATA.cvUrl}
+              download
+              className="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm
+             bg-[var(--card)] text-[color:var(--fg)]
+             border border-[var(--border)]
+             hover:border-[color-mix(in_oklab,var(--border),var(--fg)_25%)]
+             hover:shadow-[0_0_0_2px_color-mix(in_oklab,var(--accent),transparent_85%)]
+             transition-all"
+            >
+              Резюме (PDF)
+            </a>
           </div>
         </motion.div>
 
         {/* ==== Правая карточка ==== */}
         <GlassCard className="p-6 flex flex-col justify-between md:h-full">
           <div>
-            <h3 className="font-medium text-[color:var(--fg)] mb-3">Быстрые факты</h3>
+            <h3 className="font-medium text-[color:var(--fg)] mb-3">
+              Быстрые факты
+            </h3>
             <div className="text-sm opacity-80 flex items-center gap-2">
               <MapPin className="size-4 opacity-70" /> {DATA.location}
             </div>
@@ -106,13 +108,12 @@ export default function Hero() {
           {/* ==== Скиллы (первые 6), читаемы в дарке ==== */}
           <div className="mt-5 flex flex-wrap gap-2">
             {DATA.skills.slice(0, 6).map((s) => {
-              const meta =
-                skillMeta[s.name] ?? {
-                  emoji: "✨",
-                  gradFrom: "from-rose-200",
-                  gradTo: "to-pink-300",
-                  tone: "var(--accent)",
-                };
+              const meta = skillMeta[s.name] ?? {
+                emoji: "✨",
+                gradFrom: "from-rose-200",
+                gradTo: "to-pink-300",
+                tone: "var(--accent)",
+              };
 
               return (
                 <Chip
@@ -121,7 +122,10 @@ export default function Hero() {
                   className={[
                     "px-3 py-1 rounded-full text-sm font-medium transition-all",
                     // Светлая — мягкий градиент
-                    "bg-gradient-to-br", meta.gradFrom, meta.gradTo, "text-[color:var(--fg)]",
+                    "bg-gradient-to-br",
+                    meta.gradFrom,
+                    meta.gradTo,
+                    "text-[color:var(--fg)]",
                     // Тёмная — стекло и контрастный текст, градиент выключаем
                     "dark:bg-[var(--card)] dark:text-[color:var(--fg)] dark:border dark:border-[var(--chip-border)]",
                     "dark:from-transparent dark:to-transparent",
@@ -140,9 +144,9 @@ export default function Hero() {
           <a
             href={`mailto:${DATA.email}`}
             className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl w-full
-                       bg-[var(--accent)] text-white hover:bg-[var(--accent-600)]
-                       dark:text-white dark:hover:bg-[var(--accent-600)]
-                       px-5 py-3 text-sm font-medium transition-colors"
+             bg-[var(--accent)] text-white hover:bg-[color-mix(in_oklab,var(--accent),white_15%)]
+             dark:text-white dark:hover:bg-[color-mix(in_oklab,var(--accent),white_10%)]
+             px-5 py-3 text-sm font-medium transition-colors"
           >
             <Mail className="size-4" /> Написать мне
           </a>

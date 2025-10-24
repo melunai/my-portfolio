@@ -16,19 +16,95 @@ body {
 .bordered{ border: 1px solid var(--border); }
 .muted   { color: var(--muted); }
 
+/* === Кнопки — нежно-пастельные, но читаемые === */
 .btn {
-  @apply inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition;
-  background: var(--card);
-  color: var(--fg);
-  border: 1px solid var(--border);
+  @apply inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition-colors duration-200;
+  background: color-mix(in oklab, var(--card), var(--accent) 4%);
+  color: color-mix(in oklab, var(--fg), var(--accent) 12%);
+  border: 1px solid color-mix(in oklab, var(--border), var(--accent) 8%);
 }
-.btn:hover   { background: color-mix(in oklab, var(--card), var(--fg) 3%); }
+.btn:hover {
+  background: color-mix(in oklab, var(--card), var(--accent) 10%);
+}
+
 .btn-primary {
-  background: var(--accent);
-  color: white;
-  border: 1px solid transparent;
+  background: color-mix(in oklab, var(--accent), white 50%);
+  color: #fffafc;
+  border: 1px solid color-mix(in oklab, var(--accent), white 30%);
+  box-shadow: 0 3px 10px -4px color-mix(in oklab, var(--accent), transparent 75%);
 }
-.btn-primary:hover { background: var(--accent-600); }
+.btn-primary:hover {
+  background: color-mix(in oklab, var(--accent), white 60%);
+}
+
+/* Дарк-тема — чуть темнее и бархатнее */
+:root[data-theme="dark"] .btn {
+  background: color-mix(in oklab, var(--card), var(--accent) 8%);
+  color: color-mix(in oklab, var(--fg), white 10%);
+  border: 1px solid color-mix(in oklab, var(--border), var(--accent) 12%);
+}
+:root[data-theme="dark"] .btn:hover {
+  background: color-mix(in oklab, var(--card), var(--accent) 14%);
+}
+:root[data-theme="dark"] .btn-primary {
+  background: color-mix(in oklab, var(--accent), black 50%);
+  color: #fff;
+  border: 1px solid color-mix(in oklab, var(--accent), black 60%);
+}
+:root[data-theme="dark"] .btn-primary:hover {
+  background: color-mix(in oklab, var(--accent), black 42%);
+}
+
+/* === Фильтры Projects — видимые и пастельные === */
+.btn-filter {
+  @apply rounded-full text-sm;
+  padding: .375rem .75rem;
+  background: color-mix(in oklab, var(--card), var(--accent) 4%);
+  color: var(--fg);
+  border: 1px solid color-mix(in oklab, var(--border), var(--accent) 10%);
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+}
+.btn-filter:hover {
+  background: color-mix(in oklab, var(--card), var(--accent) 8%);
+}
+.btn-filter.is-active {
+  /* активный — теперь видимый даже в лайте */
+  background: color-mix(in oklab, var(--accent), white 65%);
+  color: #1e293b;
+  border-color: transparent;
+  box-shadow: 0 2px 8px -4px color-mix(in oklab, var(--accent), transparent 75%);
+}
+
+/* Дарк — актив чуть темнее, но контрастный */
+:root[data-theme="dark"] .btn-filter {
+  background: color-mix(in oklab, var(--card), var(--accent) 6%);
+  color: var(--fg);
+}
+:root[data-theme="dark"] .btn-filter:hover {
+  background: color-mix(in oklab, var(--card), var(--accent) 10%);
+}
+:root[data-theme="dark"] .btn-filter.is-active {
+  background: color-mix(in oklab, var(--accent), black 45%);
+  color: #fff;
+  border-color: color-mix(in oklab, var(--accent), black 60%);
+}
+
+/* бейдж в фильтрах — мягкий контраст */
+.filter-badge {
+  @apply inline-flex items-center justify-center rounded-full px-1 text-[11px];
+  min-width: 1.25rem;
+  height: 1.25rem;
+  margin-inline-start: .375rem;
+  background: color-mix(in oklab, var(--accent), white 85%);
+  color: #334155;
+}
+:root[data-theme="dark"] .filter-badge {
+  background: color-mix(in oklab, var(--accent), black 55%);
+  color: #fff;
+}
+
+
+/* Остальные готовые утилиты проекта */
 .input {
   @apply rounded-xl px-3 py-2 text-sm outline-none transition;
   background: var(--card);
@@ -144,57 +220,89 @@ body {
   --bg-grad-to:   #ffffff;
 }
 
-/* Light theme */
+/* === Светлая тема — пудрово-розовая, чуть контрастнее активный === */
 :root[data-theme="light"] {
-  /* ——— базовые цвета ——— */
-  --bg: #fffafc;                         /* едва-розовый фон */
-  --text: #0f172a;                       /* основной тёмно-синий текст */
-  --text-muted: #475569;                 /* вторичный (серо-синий) */
+  --bg: #fffdfd;
+  --fg: #1f2937;
+  --muted: #64748b;
+  --border: #f4e1e9;
 
-  /* ——— карточки, стекло, чипы ——— */
-  --glass-bg: rgba(255, 255, 255, 0.75);
-  --glass-border: rgba(244, 114, 182, 0.18); /* лёгкий розовый контур */
-  --chip-bg: rgba(255, 255, 255, 0.6);
-  --chip-hover: rgba(255, 255, 255, 0.8);
-  --chip-border: rgba(244, 114, 182, 0.22);
-  --grid: rgba(244, 114, 182, 0.08);
+  --elevated: #fff9fb;
+  --card: #fffafc;
 
   /* ——— акценты ——— */
-  --accent: #ec4899;       /* pink-500 */
-  --glow: #f472b6;         /* rose-400 */
-  --decor-glow: rgba(236,72,153,.28);
-  --bubble: rgba(236,72,153,.18);
-  --confetti1: #f472b6;
-  --confetti2: #db2777;
+  --accent: #f9a8d4;       /* розовый крем */
+  --accent-600: #f472b6;   /* hover/актив */
+  --accent-50: #fdf2f8;
+  --ring: #f9a8d4;
+  --link: #f472b6;
 
-  /* ——— фон градиента приложения ——— */
-  --bg-grad-from: #fffafc; /* почти белый с розовым подтоном */
-  --bg-grad-to:   #ffe4ec; /* нежный розово-персиковый */
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(249, 168, 212, 0.24);
+  --bubble: rgba(249, 168, 212, 0.22);
+  --grid: rgba(249, 168, 212, 0.1);
+  --glow: rgba(249, 168, 212, 0.38);
+
+  --chip-bg: rgba(255, 255, 255, 0.7);
+  --chip-border: rgba(249, 168, 212, 0.24);
+  --chip-hover: rgba(255, 255, 255, 0.85);
+
+  --confetti1: #f9a8d4;
+  --confetti2: #f472b6;
+  --decor-glow: rgba(249, 168, 212, 0.4);
+
+  --bg-grad-from: #fffafc;
+  --bg-grad-to: #ffe6f0;
   color-scheme: light;
 
-    --ribbon-accent:    #ec4899;        /* pink-500 */
-  --ribbon-accent-o:  0.22;           /* непрозрачность основной линии */
-  --ribbon-sheen-start: rgba(244,114,182,0.95); /* rose-400 */
-  --ribbon-sheen-end:   rgba(236,72,153,0.35);  /* pink-500 softer */
-  --ribbon-fade:      rgba(236,72,153,0.28);
+  --ribbon-accent: #f9a8d4;
+  --ribbon-accent-o: 0.3;
+  --ribbon-sheen-start: rgba(249,168,212,0.95);
+  --ribbon-sheen-end: rgba(244,114,182,0.4);
+  --ribbon-fade: rgba(249,168,212,0.32);
 }
 
-
-/* Dark theme */
+/* === Тёмная тема — чуть темнее, насыщеннее === */
 :root[data-theme="dark"] {
-  /* глубокий тёмный фон */
-  --bg-grad-from: #0b1220;
-  --bg-grad-to:   #0b1220;
-  --text: #e2e8f0;   /* slate-200 */
-  --text-muted: #cbd5e1; /* мелкий/вторичный (slate-300) */
+  --bg: #0b0f17;
+  --fg: #f3f4f6;
+  --muted: #a1a1aa;
+  --border: #1f2530;
+
+  --elevated: #131721;
+  --card: #11141d;
+
+  --accent: #bca8fa;       /* мягкая лаванда */
+  --accent-600: #a78bfa;   /* hover */
+  --accent-50: #1e1b2f;
+  --ring: #a78bfa;
+  --link: #bca8fa;
+
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(188,168,250,0.18);
+  --bubble: rgba(188,168,250,0.18);
+  --grid: rgba(188,168,250,0.10);
+  --glow: rgba(188,168,250,0.28);
+
+  --chip-bg: rgba(255, 255, 255, 0.05);
+  --chip-border: rgba(188,168,250,0.18);
+  --chip-hover: rgba(255, 255, 255, 0.12);
+
+  --confetti1: #bca8fa;
+  --confetti2: #a78bfa;
+  --decor-glow: rgba(188,168,250,0.32);
+
+  --bg-grad-from: #0b0f17;
+  --bg-grad-to: #141925;
   color-scheme: dark;
 
-  --ribbon-accent:    #7c3aed;        /* violet-600 */
-  --ribbon-accent-o:  0.24;
-  --ribbon-sheen-start: rgba(167,139,250,0.85); /* violet-400 */
-  --ribbon-sheen-end:   rgba(124,58,237,0.30);  /* violet-600 softer */
-  --ribbon-fade:      rgba(88,28,135,0.42);     /* violet-900 w/ alpha */
+  --ribbon-accent: #a78bfa;
+  --ribbon-accent-o: 0.28;
+  --ribbon-sheen-start: rgba(196,181,253,0.85);
+  --ribbon-sheen-end: rgba(167,139,250,0.35);
+  --ribbon-fade: rgba(139,92,246,0.42);
 }
+
 
 /* Утилита (если хочешь класс вместо inline-style) */
 .app-bg {
