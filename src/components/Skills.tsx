@@ -1,6 +1,8 @@
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Section from "./Section";
+import SectionLead from "./SectionLead";
+import GlassCard from "./GlassCard";
 import Chip from "./Chip";
 import { DATA, skillMeta } from "../data";
 import Confetti from "react-confetti";
@@ -10,7 +12,6 @@ export default function Skills() {
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const lastPlayRef = useRef(0);
-
   const playBubble = () => {
     const now = performance.now();
     if (now - lastPlayRef.current < 120) return;
@@ -21,7 +22,9 @@ export default function Skills() {
       audioRef.current = a;
     }
     const a = audioRef.current;
-    try { a.currentTime = 0; } catch {}
+    try {
+      a.currentTime = 0;
+    } catch {}
     a.play().catch(() => {});
   };
 
@@ -37,9 +40,11 @@ export default function Skills() {
   };
 
   return (
-    <Section id="skills" title=" Навыки и инструменты ">
-      {/* убран фон — прозрачная область */}
-      <div className="p-0">
+    <Section id="skills" title="Навыки и инструменты">
+      {/* ✅ Подзаголовок */}
+      <SectionLead>Инструменты и стек, которыми я реально пользуюсь в работе.</SectionLead>
+
+      <GlassCard className="p-6">
         <motion.div
           className="flex flex-wrap gap-4 justify-center"
           initial="hidden"
@@ -51,7 +56,10 @@ export default function Skills() {
           }}
         >
           {DATA.skills.map((s, i) => {
-            const meta = skillMeta[s.name] ?? { emoji: "✨", tone: "var(--accent)" };
+            const meta = skillMeta[s.name] ?? {
+              emoji: "✨",
+              tone: "var(--accent)",
+            };
 
             return (
               <motion.div
@@ -75,17 +83,19 @@ export default function Skills() {
                 onClick={(e) => handleClick(s.url, e)}
                 className="cursor-pointer"
               >
-                {/* стеклянный чип-навык с подсветкой */}
                 <Chip
-                  style={{ ["--tone" as any]: meta.tone || "var(--accent)" }}
+                  style={{
+                    ["--tone" as any]: meta.tone || "var(--accent)",
+                  }}
                   className="
-                    px-5 py-3 rounded-2xl transition-all skill-chip-glow
+                    px-5 py-3 rounded-2xl transition-all
                     text-[color:var(--fg)]
-                    bg-[var(--glass-bg)] border border-[var(--glass-border)] backdrop-blur-md
+                    bg-[var(--card)] dark:bg-[color-mix(in oklab,var(--card),black_8%)]
+                    border border-[var(--border)]
                     ring-1 ring-black/5 dark:ring-white/10
                     hover:border-[color:var(--tone)]
                     hover:shadow-[0_0_0_3px_var(--tone)]
-                    shadow-sm hover:shadow-md
+                    shadow-sm hover:shadow-md backdrop-blur-sm
                   "
                 >
                   <span
@@ -100,7 +110,7 @@ export default function Skills() {
             );
           })}
         </motion.div>
-      </div>
+      </GlassCard>
 
       {confetti && (
         <Confetti
@@ -109,7 +119,12 @@ export default function Skills() {
           height={window.innerHeight}
           recycle={false}
           numberOfPieces={60}
-          confettiSource={{ x: confetti.x, y: confetti.y, w: 10, h: 10 }}
+          confettiSource={{
+            x: confetti.x,
+            y: confetti.y,
+            w: 10,
+            h: 10,
+          }}
         />
       )}
     </Section>

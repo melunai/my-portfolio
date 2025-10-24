@@ -1,6 +1,23 @@
 @import "tailwindcss";
 @import './theme/theme.css';
 
+@font-face {
+  font-family: "Compacta LT Light Compress CY";
+  src: url("/src/assets/fonts/LT_55850.otf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Novelist";
+  src: url("/src/assets/fonts/Novelist_free.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+
 /* 3) База */
 html { scroll-behavior: smooth; }
 body {
@@ -222,6 +239,8 @@ body {
 
 /* === Светлая тема — пудрово-розовая, чуть контрастнее активный === */
 :root[data-theme="light"] {
+  --text: #1f1f26; /* был слишком светлый (#0f172a) */
+  --text-muted: #3a3a46;
   --bg: #fffdfd;
   --fg: #1f2937;
   --muted: #64748b;
@@ -454,3 +473,65 @@ body {
 :root[data-theme="dark"] .skeleton-soft {
   background: color-mix(in oklab, var(--card), var(--accent) 14%);
 }
+/* === Compacta — статичный стеклянный заголовок без hover === */
+.glass-section-title {
+  position: relative;
+  display: inline-block;
+  text-align: center;
+
+  /* 🩷 Шрифт и форма */
+  font-family: "Compacta LT Light Compress CY", "Inter", sans-serif;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  line-height: 1;
+  transform: scaleY(1.18);
+
+  /* 🎨 Цвет — мягкий градиент с лучшей читаемостью в светлой теме */
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--text), var(--accent) 25%) 0%,
+    color-mix(in oklab, var(--accent), var(--text) 30%) 50%,
+    color-mix(in oklab, var(--accent), transparent 92%) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  /* 🌫 Мягкое стеклянное растворение низа */
+  mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+
+  /* ☁️ Лёгкое внутреннее свечение, без hover */
+  filter:
+    drop-shadow(0 2px 8px color-mix(in oklab, var(--accent), transparent 85%))
+    drop-shadow(0 0 4px color-mix(in oklab, var(--accent), transparent 92%));
+
+  transition: none;
+}
+
+/* === Подзаголовок в стиле Masvol === */
+.glass-lead {
+  font-family: "Novelist", "Inter", sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  transform: scaleY(1.08);
+  text-align: center;
+
+  /* 🌫 мягкий стеклянный fade низа */
+  mask-image: linear-gradient(to bottom, black 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 92%, transparent 100%);
+
+  /* 🎨 градиентный тон текста */
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--text-muted), white 6%) 0%,
+    color-mix(in oklab, var(--text-muted), transparent 85%) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  /* ☁️ лёгкое сияние, очень мягкое */
+  filter: drop-shadow(0 2px 4px color-mix(in oklab, var(--accent), transparent 92%));
+}
+
+
