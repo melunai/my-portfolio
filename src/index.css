@@ -29,7 +29,7 @@ body {
 
 .btn-primary {
   background: color-mix(in oklab, var(--accent), white 50%);
-  color: #fffafc;
+   color: #333333;
   border: 1px solid color-mix(in oklab, var(--accent), white 30%);
   box-shadow: 0 3px 10px -4px color-mix(in oklab, var(--accent), transparent 75%);
 }

@@ -37,7 +37,7 @@ export default function Skills() {
   };
 
   return (
-    <Section id="skills" title="✨ Навыки и инструменты ✨">
+    <Section id="skills" title=" Навыки и инструменты ">
       {/* убран фон — прозрачная область */}
       <div className="p-0">
         <motion.div
