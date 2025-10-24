@@ -237,8 +237,8 @@ body {
   --ring: #f9a8d4;
   --link: #f472b6;
 
-  --glass-bg: rgba(255, 255, 255, 0.75);
-  --glass-border: rgba(249, 168, 212, 0.24);
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(251, 113, 133, 0.26);
   --bubble: rgba(249, 168, 212, 0.22);
   --grid: rgba(249, 168, 212, 0.1);
   --glow: rgba(249, 168, 212, 0.38);
@@ -399,4 +399,58 @@ body {
   0%   { transform: scale(0.6);  opacity: 0; }
   60%  { transform: scale(1.3);  opacity: 1; }
   100% { transform: scale(1);    opacity: 1; }
+}
+
+/* ===== Эффект стекла и свечения для навыков (Skills) ===== */
+.skill-chip-glow {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--glass-border), var(--accent) 12%),
+    0 6px 18px -10px color-mix(in oklab, var(--accent), transparent 80%);
+  transition: box-shadow .25s ease, transform .25s ease, background .25s ease;
+}
+.skill-chip-glow:hover {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--accent), transparent 40%),
+    0 8px 26px -12px color-mix(in oklab, var(--accent), transparent 70%);
+}
+
+/* Пастельно-розовый вариант чипов (для стеков) */
+.pastel-chip {
+  background: color-mix(in oklab, var(--accent-50), white 55%);
+  color: color-mix(in oklab, var(--accent-600), black 20%);
+  border: 1px solid color-mix(in oklab, var(--chip-border), var(--accent) 14%);
+}
+:root[data-theme="dark"] .pastel-chip {
+  background: color-mix(in oklab, var(--card), var(--accent) 10%);
+  color: color-mix(in oklab, var(--fg), white 10%);
+  border-color: color-mix(in oklab, var(--chip-border), var(--accent) 22%);
+}
+/* ===== Мягкий shimmer-скелетон для превью ===== */
+.skeleton-soft {
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--card), var(--accent) 8%);
+  position: relative;
+  overflow: hidden;
+}
+.skeleton-soft::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklab, var(--card), white 18%) 50%,
+    transparent 100%
+  );
+  animation: skeletonShimmer 1.2s ease-in-out infinite;
+}
+@keyframes skeletonShimmer {
+  100% { transform: translateX(100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-soft::after { animation: none; }
+}
+:root[data-theme="dark"] .skeleton-soft {
+  background: color-mix(in oklab, var(--card), var(--accent) 14%);
 }

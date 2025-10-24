@@ -3,11 +3,15 @@
 export type Project = {
   title: string;
   description: string;
-  image: string;
+  image?: string;       // для обратной совместимости
+  images?: string[];    // несколько фото (cover берём из images[0])
   stack: string[];
-  highlights?: string[];
   liveUrl?: string;
   repoUrl?: string;
+  period?: string;
+  highlights?: string[];
+  roles?: string[];
+  metrics?: string[];
 };
 
 export type ExperienceItem = {
@@ -73,22 +77,36 @@ export const DATA = {
   ],
 
   projects: <Project[]>[
-    {
+     {
       title: "Lory-LCT — модульная город-игра",
       description:
         "Платформа с двумя картами (реальная и личная), автогенерацией контента и интеграцией в мобильное приложение банка. " +
         "Игровая механика: сбор событий, развитие персональной карты, геймифицированное обучение финансовой грамотности.",
-      image: "/images/projects/lory-lct.jpg",
+      images: [
+        "/images/LoryLCT/lory-lct-1.webp",
+        "/images/LoryLCT/lory-lct-2.webp",
+        "/images/LoryLCT/lory-lct-3.webp",
+      ],
+      image: "/images/LoryLCT/lory-lct-1.webp",
       stack: [
-        "React", "TypeScript", "Tailwind", "UnoCSS",
-        "MapLibre GL", "Mapbox GL", "Zustand", "Redux Toolkit",
-        "IndexedDB", "Service Worker",
+        "React",
+        "TypeScript",
+        "Tailwind",
+        "UnoCSS",
+        "MapLibre GL",
+        "Mapbox GL",
+        "Zustand",
+        "Redux Toolkit",
+        "IndexedDB",
+        "Service Worker",
       ],
       highlights: [
         "Динамическая гексагональная сетка поверх тайлов",
         "Плагинная система мини-игр (ESM + manifest JSON)",
         "Он-прем карты, без публичных ключей; опционально 3D",
       ],
+      period: "2025",
+      roles: ["Frontend", "Architect"],
     },
     {
       title: "Lory-MPIT — «Умный помощник» (Drivee)",
@@ -97,15 +115,39 @@ export const DATA = {
       image: "/images/projects/lory-mpit.jpg",
       stack: ["TypeScript", "React"],
       repoUrl: "https://github.com/ShiruiChan/mpit-2025-start",
+      period: "2025",
+      roles: ["Frontend"],
     },
     {
       title: "Lory.Lab — сайт компании",
       description:
         "Продуктовая лаборатория и сервисная студия: интерфейсы, проверка гипотез, быстрые MVP и сопровождение.",
-      image: "/images/projects/lory-lab.jpg",
+      images: [
+        "/images/LoryLab/lory-lab-1.webp",
+        "/images/LoryLab/lory-lab-2.webp",
+        "/images/LoryLab/lory-lab-3.webp",
+        "/images/LoryLab/lory-lab-4.webp",
+        "/images/LoryLab/lory-lab-5.webp",
+        "/images/LoryLab/lory-lab-6.webp",
+        "/images/LoryLab/lory-lab-7.webp",
+        "/images/LoryLab/lory-lab-8.webp",
+        "/images/LoryLab/lory-lab-9.webp",
+        "/images/LoryLab/lory-lab-10.webp",
+        "/images/LoryLab/lory-lab-11.webp",
+        "/images/LoryLab/lory-lab-12.webp",
+        "/images/LoryLab/lory-lab-13.webp",
+      ],
+      image: "/images/LoryLab/lory-lab-1.webp",
       stack: ["Next.js", "React", "TypeScript"],
       liveUrl: "https://lory.vercel.app",
       repoUrl: "https://github.com/ShiruiChan/Lory.Lab",
+      period: "2025",
+      roles: ["Frontend", "Design", "UX"],
+      highlights: [
+        "Витрина продуктов и проектов компании",
+        "Лёгкая архитектура на Next.js + App Router",
+        "Использование модульных компонентов и анимаций",
+      ],
     },
   ],
 } as const;

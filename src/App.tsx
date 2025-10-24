@@ -17,6 +17,7 @@ import KawaiiFrame from "./components/KawaiiFrame";
 import ConfettiRain from "./components/ConfettiRain";
 import PinkRibbons from "./components/PinkRibbons";
 import { DATA } from "./data";
+import WorkflowStages from "./components/WorkflowStages";
 
 import { LiveModeProvider, LiveModeToggle, useLiveMode } from "./components/LiveMode";
 
@@ -57,6 +58,7 @@ function AppInner() {
         <Metrics />
         <Projects />
         <Skills />
+        <WorkflowStages />
         <Experience />
         <Testimonials />
         <About />

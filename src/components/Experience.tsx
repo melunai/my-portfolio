@@ -10,12 +10,7 @@ import {
 import Section from "./Section";
 import SectionLead from "./SectionLead";
 import { EXPERIENCE } from "../data";
-import {
-  Building2,
-  CalendarDays,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+import { Building2, CalendarDays, ChevronDown, ChevronUp } from "lucide-react";
 
 type ItemState = { open: boolean };
 
@@ -24,12 +19,11 @@ export default function Experience() {
   const [openMap, setOpenMap] = useState<Record<string, ItemState>>({});
   const listRef = useRef<HTMLDivElement | null>(null);
 
-  // Прогресс скролла внутри списка: 0 (начало) → 1 (конец)
   const { scrollYProgress } = useScroll({
     target: listRef,
     offset: ["start 80%", "end 20%"],
   });
-  const fillScale = useTransform(scrollYProgress, [0, 1], [0.05, 1]); // чуть видна сразу
+  const fillScale = useTransform(scrollYProgress, [0, 1], [0.05, 1]);
 
   useEffect(() => {
     if (EXPERIENCE.length) {
@@ -38,9 +32,8 @@ export default function Experience() {
   }, []);
 
   const toggle = (company: string) =>
-    setOpenMap((m) => ({ ...m, [company]: { open: !(m[company]?.open) } }));
+    setOpenMap((m) => ({ ...m, [company]: { open: !m[company]?.open } }));
 
-  // Быстрая анимация появления линии
   const lineAnim = useMemo(
     () => ({
       initial: { scaleY: 0.4, opacity: 0 },
@@ -54,17 +47,15 @@ export default function Experience() {
   return (
     <Section id="experience" title="Опыт">
       <div className="relative">
-        {/* Заголовок */}
         <div className="flex items-start justify-between gap-4">
-          <SectionLead>
-            Где я приносил пользу и за что отвечал.
-          </SectionLead>
-
+          <SectionLead>Где я приносил пользу и за что отвечал.</SectionLead>
         </div>
 
-        {/* Таймлиния + карточки */}
-        <div ref={listRef} className="relative mt-8 grid grid-cols-[16px,1fr] gap-4">
-          {/* Базовая радужная линия */}
+        <div
+          ref={listRef}
+          className="relative mt-8 grid grid-cols-[16px,1fr] gap-4"
+        >
+          {/* Радужная линия */}
           <motion.div
             className="relative ml-[6px] rounded-full origin-top"
             style={{
@@ -88,14 +79,14 @@ export default function Experience() {
               />
             )}
 
-            {/* Линия заполнения (индикатор прогресса скролла) */}
             <motion.span
               aria-hidden
               className="absolute left-0 right-0 origin-top rounded-full"
               style={{
                 top: 0,
                 height: "100%",
-                background: "linear-gradient(180deg,var(--accent),transparent 90%)",
+                background:
+                  "linear-gradient(180deg,var(--accent),transparent 90%)",
                 opacity: 0.6,
                 scaleY: fillScale,
               }}
@@ -117,7 +108,7 @@ export default function Experience() {
                     transition={{ type: "spring", stiffness: 320, damping: 22 }}
                     className="group relative"
                   >
-                    {/* Точка на линии (пульс при открытии) */}
+                    {/* Точка */}
                     <motion.div
                       aria-hidden
                       className="absolute -left-[26px] top-2 size-5 rounded-full grid place-items-center"
@@ -126,11 +117,18 @@ export default function Experience() {
                         isOpen && !reduce
                           ? {
                               scale: [1, 1.15, 1],
-                              filter: ["brightness(1)", "brightness(1.2)", "brightness(1)"],
+                              filter: [
+                                "brightness(1)",
+                                "brightness(1.2)",
+                                "brightness(1)",
+                              ],
                             }
                           : {}
                       }
-                      transition={{ duration: 0.9, repeat: isOpen && !reduce ? Infinity : 0 }}
+                      transition={{
+                        duration: 0.9,
+                        repeat: isOpen && !reduce ? Infinity : 0,
+                      }}
                     >
                       <div
                         className="size-2.5 rounded-full"
@@ -143,7 +141,7 @@ export default function Experience() {
                       />
                     </motion.div>
 
-                    {/* Карточка опыта */}
+                    {/* Карточка со стеклянным фоном */}
                     <motion.div
                       whileHover={
                         reduce
@@ -154,24 +152,36 @@ export default function Experience() {
                               transition: { duration: 0.18 },
                             }
                       }
-                      className="relative rounded-3xl p-5 md:p-6 backdrop-blur-xl
-                                 bg-[var(--glass-bg)] border border-[var(--glass-border)]
-                                 shadow-sm hover:shadow-glow-pink transition-transform"
+                      className="
+                        relative rounded-3xl p-6 md:p-7
+                        bg-[var(--glass-bg)] border border-[var(--glass-border)]
+                        backdrop-blur-2xl
+                        shadow-[0_8px_30px_-10px_var(--glow)]
+                        hover:shadow-[0_10px_35px_-8px_var(--glow)]
+                        transition-all duration-300
+                      "
+                      style={{
+                        backgroundImage:
+                          "linear-gradient(145deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06)), var(--glass-bg)",
+                      }}
                     >
-                      {/* Шапка */}
                       <header className="relative z-10 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                         <div className="min-w-0">
                           <h3 className="text-lg md:text-xl font-extrabold tracking-tight">
                             {e.role}
                           </h3>
                           <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-[color:var(--muted)]">
-                            <span className="inline-flex items-center gap-1.5 rounded-xl px-2 py-1
-                                             bg-[var(--chip-bg)] border border-[var(--chip-border)]">
+                            <span
+                              className="inline-flex items-center gap-1.5 rounded-xl px-2 py-1
+                                         bg-[var(--chip-bg)] border border-[var(--chip-border)]"
+                            >
                               <Building2 className="size-3.5 opacity-80" />
                               {e.company}
                             </span>
-                            <span className="inline-flex items-center gap-1.5 rounded-xl px-2 py-1
-                                             bg-[var(--chip-bg)] border border-[var(--chip-border)]">
+                            <span
+                              className="inline-flex items-center gap-1.5 rounded-xl px-2 py-1
+                                         bg-[var(--chip-bg)] border border-[var(--chip-border)]"
+                            >
                               <CalendarDays className="size-3.5 opacity-80" />
                               {e.period}
                             </span>
@@ -199,7 +209,6 @@ export default function Experience() {
                         </button>
                       </header>
 
-                      {/* Достижения */}
                       <AnimatePresence initial={false}>
                         {isOpen && (
                           <motion.ul
@@ -207,7 +216,10 @@ export default function Experience() {
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.22, ease: [0.2, 0.8, 0.2, 1] }}
+                            transition={{
+                              duration: 0.22,
+                              ease: [0.2, 0.8, 0.2, 1],
+                            }}
                             className="relative z-10 mt-3 overflow-hidden space-y-2"
                           >
                             {e.points.map((p, j) => (
@@ -250,7 +262,6 @@ export default function Experience() {
           </div>
         </div>
 
-        {/* дыхание сияния на радужной линии */}
         <style>{`
           @keyframes breath {
             0%,100% { opacity: .35; transform: translateY(0) }
