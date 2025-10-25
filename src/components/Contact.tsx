@@ -1,46 +1,72 @@
 import Section from "./Section";
+import SectionLead from "./SectionLead";
+import GlassCard from "./GlassCard";
 import ContactForm from "./ContactForm";
-import { Mail } from "lucide-react";
+import { Mail, Send } from "lucide-react";
 import { DATA } from "../data";
+import type{ JSX } from "react";
 
-export default function Contact() {
+export default function Contact(): JSX.Element {
   return (
-    <Section id="contact" title="Свяжитесь со мной">
-      <div className="relative flex flex-col items-center justify-center">
-        {/* мягкий овальный фон-свечение */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 mx-auto w-[42rem] h-[42rem] rounded-full blur-3xl opacity-50"
+    <Section id="contact" title="Связаться со мной">
+      <div className="relative">
+
+        <GlassCard
+          className="relative overflow-hidden p-6 md:p-10"
           style={{
             background:
-              "radial-gradient(circle at 50% 50%, var(--decor-glow), transparent 70%)",
+              "linear-gradient(145deg, color-mix(in oklab, var(--accent) 10%, transparent), color-mix(in oklab, var(--card) 92%, var(--accent) 6%))",
+            boxShadow:
+              "0 20px 60px -30px color-mix(in oklab, var(--glow), transparent 45%), inset 0 0 0 1px color-mix(in oklab, var(--chip-border), transparent 50%)",
+            border:
+              "1px solid color-mix(in oklab, var(--glass-border), var(--accent) 12%)",
           }}
-        />
+        >
+          {/* Мягкое боковое свечение секции (без артефактов) */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -inset-[2px] rounded-[1rem] opacity-60 blur-2xl"
+          />
 
-        {/* форма в овальной стеклянной оболочке */}
-        <div className="relative z-20 backdrop-blur-2xl bg-transparent border border-[var(--glass-border)] rounded-[4rem] p-10 max-w-3xl w-full shadow-[0_0_40px_-20px_var(--glow)] text-[15px] leading-relaxed text-left">
-          <p className="opacity-90 mb-6">
-            Есть идея или задача — расскажите о ней. Я свяжусь с вами и предложу
-            оптимальные варианты реализации под ваш проект.
-          </p>
+          <div className="relative grid gap-10 md:grid-cols-2">
+            {/* Левая колонка — подводка и быстрые контакты */}
+            <div className="self-center">
+              <SectionLead>
+                Есть идея или задача? Напишите — вернусь с предложениями, сроками и аккуратной сметой.
+              </SectionLead>
 
-          <div className="mx-auto max-w-2xl">
-            <ContactForm
-              targetEmail={DATA.email}
-              defaultTelegram={DATA.telegram}
-            />
+              <div className="mt-4 grid gap-3">
+                <a
+                  href={`mailto:${DATA.email}`}
+                  className="inline-flex items-center gap-2 rounded-xl px-3 py-2 bordered hover:shadow-md transition"
+                >
+                  <Mail className="size-4 opacity-80" />
+                  <span>{DATA.email}</span>
+                </a>
+
+                {DATA.telegram && (
+                  <a
+                    href={`https://t.me/${DATA.telegram.replace(/^@/, "")}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl px-3 py-2 bordered hover:shadow-md transition"
+                  >
+                    <Send className="size-4 opacity-80" />
+                    <span>{DATA.telegram}</span>
+                  </a>
+                )}
+              </div>
+            </div>
+
+            {/* Правая колонка — форма */}
+            <div className="max-w-xl md:ml-auto">
+              <ContactForm
+                targetEmail={DATA.email}
+                defaultTelegram={DATA.telegram}
+              />
+            </div>
           </div>
-
-          <div className="mt-8 opacity-85 text-sm">
-            <p>Или напишите напрямую:</p>
-            <a
-              href={`mailto:${DATA.email}`}
-              className="inline-flex items-center gap-2 mt-2 text-blue-400 hover:underline"
-            >
-              <Mail className="size-4" /> {DATA.email}
-            </a>
-          </div>
-        </div>
+        </GlassCard>
       </div>
     </Section>
   );
