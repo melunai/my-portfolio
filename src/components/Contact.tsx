@@ -22,14 +22,17 @@ export default function Contact(): JSX.Element {
               "1px solid color-mix(in oklab, var(--glass-border), var(--accent) 12%)",
           }}
         >
-          {/* Мягкое боковое свечение секции (без артефактов) */}
+          {/* мягкое свечение по бокам */}
           <div
             aria-hidden
             className="pointer-events-none absolute -inset-[2px] rounded-[1rem] opacity-60 blur-2xl"
+            style={{
+              background:
+                "radial-gradient(circle at 12% 18%, color-mix(in oklab, var(--accent), transparent 55%) 0%, transparent 60%), radial-gradient(circle at 88% 82%, color-mix(in oklab, var(--accent), transparent 55%) 0%, transparent 60%)",
+            }}
           />
 
           <div className="relative grid gap-10 md:grid-cols-2">
-            {/* Левая колонка — подводка и быстрые контакты */}
             <div className="self-center">
               <SectionLead>
                 Есть идея или задача? Напишите — вернусь с предложениями, сроками и аккуратной сметой.
@@ -58,7 +61,6 @@ export default function Contact(): JSX.Element {
               </div>
             </div>
 
-            {/* Правая колонка — форма */}
             <div className="max-w-xl md:ml-auto">
               <ContactForm
                 targetEmail={DATA.email}

@@ -3,9 +3,7 @@ import emailjs from "@emailjs/browser";
 import type{ JSX } from "react";
 
 export type ContactFormProps = {
-  /** получатель (по умолчанию — из DATA) */
   targetEmail?: string;
-  /** плейсхолдер/подсказка для Telegram */
   defaultTelegram?: string;
 };
 
@@ -21,57 +19,51 @@ const TELEGRAM_RE = /^@?[a-zA-Z0-9_]{5,}$/;
 
 const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID as string | undefined;
 const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID as string | undefined;
-const PUBLIC_KEY  = import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string | undefined;
+const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string | undefined;
 
 export default function ContactForm({
   targetEmail = (import.meta.env.VITE_TARGET_EMAIL as string) || "seon.takago@gmail.com",
   defaultTelegram = "@melunai",
 }: ContactFormProps): JSX.Element {
-  const [email, setEmail] = useState<string>("");
-  const [telegram, setTelegram] = useState<string>("");
-  const [message, setMessage] = useState<string>("");
-  const [consent, setConsent] = useState<boolean>(false);
-
+  const [email, setEmail] = useState("");
+  const [telegram, setTelegram] = useState("");
+  const [message, setMessage] = useState("");
+  const [consent, setConsent] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
-  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState<null | "ok" | "fail">(null);
 
-  const canSubmit = useMemo<boolean>(() => {
+  const canSubmit = useMemo(() => {
     const hasContact =
       (email && EMAIL_RE.test(email)) || (telegram && TELEGRAM_RE.test(telegram));
     const len = message.trim().length;
     const msgOk = len >= 20 && len <= 2000;
-    // строго boolean — без строк/undefined
     return Boolean(hasContact && msgOk && consent && !submitting);
   }, [email, telegram, message, consent, submitting]);
 
   function validate(): boolean {
     const next: FieldErrors = {};
-
     if (!email && !telegram) {
       next.email = "Укажите email или Telegram";
       next.telegram = "Укажите email или Telegram";
     }
     if (email && !EMAIL_RE.test(email)) next.email = "Некорректный email";
     if (telegram && !TELEGRAM_RE.test(telegram))
-      next.telegram = "Некорректный @ник (мин. 5 символов, латиница/цифры/_)";
-
+      next.telegram = "Некорректный @ник";
     const m = message.trim();
-    if (m.length < 20) next.message = "Опишите задачу подробнее (минимум 20 символов)";
-    else if (m.length > 2000) next.message = "Слишком длинное описание (максимум 2000 символов)";
-
-    if (!consent) next.consent = "Необходимо согласие на обработку данных";
-
+    if (m.length < 20) next.message = "Минимум 20 символов";
+    else if (m.length > 2000) next.message = "Максимум 2000 символов";
+    if (!consent) next.consent = "Нужно согласие на обработку данных";
     setErrors(next);
     return Object.keys(next).length === 0;
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>): Promise<void> {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSent(null);
     if (!validate()) return;
-
     setSubmitting(true);
+
     try {
       if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
         throw new Error("EmailJS env missing");
@@ -84,7 +76,9 @@ export default function ContactForm({
           to_email: targetEmail,
           from_email: email || "(не указан)",
           from_telegram: telegram
-            ? (telegram.startsWith("@") ? telegram : "@" + telegram)
+            ? telegram.startsWith("@")
+              ? telegram
+              : "@" + telegram
             : "(не указан)",
           message,
         },
@@ -98,7 +92,7 @@ export default function ContactForm({
       setConsent(false);
       setErrors({});
     } catch (err) {
-      console.error(err);
+      console.error("[EmailJS error]", err);
       setSent("fail");
     } finally {
       setSubmitting(false);
@@ -114,7 +108,6 @@ export default function ContactForm({
       noValidate
       className="contact-form relative rounded-2xl p-6 md:p-8 shadow-lg overflow-hidden"
       style={{
-        // плавный градиент: розовый → белый/почти-чёрный (в зависимости от темы)
         background:
           "linear-gradient(145deg, color-mix(in oklab, var(--accent) 20%, transparent), color-mix(in oklab, var(--bg) 85%, var(--accent) 8%))",
         border:
@@ -123,7 +116,7 @@ export default function ContactForm({
           "0 8px 32px -12px color-mix(in oklab, var(--glow), transparent 60%)",
       }}
     >
-      {/* Мягкое боковое свечение — без масок и артефактов */}
+      {/* Мягкое боковое свечение */}
       <div
         aria-hidden
         className="absolute -inset-[2px] rounded-2xl opacity-70 blur-xl pointer-events-none"
@@ -134,57 +127,47 @@ export default function ContactForm({
       />
 
       <div className="relative grid gap-5">
-        {/* Две колонки вверху: email + telegram */}
+        {/* Email и Telegram */}
         <div className="grid md:grid-cols-2 gap-5">
-          {/* Email */}
           <div className="relative">
             <input
               type="email"
               inputMode="email"
               value={email}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-              className={`${fieldBase} ${errors.email ? "border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,.35)]" : ""}`}
-              aria-invalid={Boolean(errors.email)}
-              aria-describedby={errors.email ? "err-email" : undefined}
+              onChange={(e) => setEmail(e.target.value)}
+              className={`${fieldBase} ${
+                errors.email
+                  ? "border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,.35)]"
+                  : ""
+              }`}
               placeholder=" "
             />
-            <label
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm opacity-70 transition-all
-                         peer-focus:top-1 peer-focus:text-xs peer-focus:opacity-100
-                         peer-not-placeholder-shown:top-1 peer-not-placeholder-shown:text-xs"
-            >
+            <label className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm opacity-70 transition-all peer-focus:top-1 peer-focus:text-xs peer-focus:opacity-100 peer-not-placeholder-shown:top-1 peer-not-placeholder-shown:text-xs">
               Email
             </label>
             {errors.email && (
-              <p id="err-email" className="mt-1 text-xs text-red-400">
-                {errors.email}
-              </p>
+              <p className="mt-1 text-xs text-red-400">{errors.email}</p>
             )}
           </div>
 
-          {/* Telegram */}
           <div className="relative">
             <input
               type="text"
               inputMode="text"
               value={telegram}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTelegram(e.target.value)}
-              className={`${fieldBase} ${errors.telegram ? "border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,.35)]" : ""}`}
-              aria-invalid={Boolean(errors.telegram)}
-              aria-describedby={errors.telegram ? "err-telegram" : undefined}
+              onChange={(e) => setTelegram(e.target.value)}
+              className={`${fieldBase} ${
+                errors.telegram
+                  ? "border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,.35)]"
+                  : ""
+              }`}
               placeholder=" "
             />
-            <label
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm opacity-70 transition-all
-                         peer-focus:top-1 peer-focus:text-xs peer-focus:opacity-100
-                         peer-not-placeholder-shown:top-1 peer-not-placeholder-shown:text-xs"
-            >
+            <label className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm opacity-70 transition-all peer-focus:top-1 peer-focus:text-xs peer-focus:opacity-100 peer-not-placeholder-shown:top-1 peer-not-placeholder-shown:text-xs">
               Telegram ({defaultTelegram})
             </label>
             {errors.telegram && (
-              <p id="err-telegram" className="mt-1 text-xs text-red-400">
-                {errors.telegram}
-              </p>
+              <p className="mt-1 text-xs text-red-400">{errors.telegram}</p>
             )}
           </div>
         </div>
@@ -194,25 +177,21 @@ export default function ContactForm({
           <textarea
             rows={6}
             value={message}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
-            className={`${fieldBase} resize-y min-h-[140px] ${errors.message ? "border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,.35)]" : ""}`}
-            aria-invalid={Boolean(errors.message)}
-            aria-describedby={errors.message ? "err-message" : undefined}
+            onChange={(e) => setMessage(e.target.value)}
+            className={`${fieldBase} resize-y min-h-[140px] ${
+              errors.message
+                ? "border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,.35)]"
+                : ""
+            }`}
             placeholder=" "
           />
-          <label
-            className="pointer-events-none absolute left-3 top-3 text-sm opacity-70 transition-all
-                       peer-focus:top-2 peer-focus:text-xs peer-focus:opacity-100
-                       peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:text-xs"
-          >
+          <label className="pointer-events-none absolute left-3 top-3 text-sm opacity-70 transition-all peer-focus:top-2 peer-focus:text-xs peer-focus:opacity-100 peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:text-xs">
             Опишите задачу (минимум 20 символов)
           </label>
           <div className="mt-1 flex items-center justify-between text-xs opacity-80">
             <span>{message.trim().length}/2000</span>
             {errors.message && (
-              <p id="err-message" className="text-red-400">
-                {errors.message}
-              </p>
+              <p className="text-red-400">{errors.message}</p>
             )}
           </div>
         </div>
@@ -223,10 +202,10 @@ export default function ContactForm({
             id="consent"
             type="checkbox"
             checked={consent}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConsent(e.target.checked)}
+            onChange={(e) => setConsent(e.target.checked)}
             className="mt-1"
           />
-        <label htmlFor="consent" className="text-sm opacity-90">
+          <label htmlFor="consent" className="text-sm opacity-90">
             Согласен на обработку персональных данных для ответа на заявку.
           </label>
         </div>
@@ -234,7 +213,7 @@ export default function ContactForm({
           <p className="text-xs text-red-400">{errors.consent}</p>
         )}
 
-        {/* Действия */}
+        {/* Кнопка */}
         <div className="flex items-center gap-3">
           <button
             type="submit"
@@ -250,9 +229,7 @@ export default function ContactForm({
           {sent === "ok" && (
             <span
               className="text-sm"
-              style={{
-                color: "color-mix(in oklab, var(--accent), white 20%)",
-              }}
+              style={{ color: "color-mix(in oklab, var(--accent), white 20%)" }}
             >
               Готово! Я получил заявку ✨
             </span>
@@ -264,9 +241,29 @@ export default function ContactForm({
           )}
         </div>
 
-        <p className="text-xs opacity-75">
+        <p className="text-xs opacity-75 text-center">
           * Можно указать только email или только Telegram — достаточно одного способа связи.
         </p>
+
+        {/* кастомная подпись reCAPTCHA — теперь просто информационная */}
+        <div className="mt-4 flex items-center gap-2 text-xs opacity-70 justify-center select-none">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="2"
+            stroke="currentColor"
+            className="opacity-80"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 2l7 4v6a9 9 0 11-14 0V6l7-4z"
+            />
+          </svg>
+        </div>
       </div>
     </form>
   );

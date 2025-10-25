@@ -53,7 +53,7 @@ export default function Experience() {
 
         <div
           ref={listRef}
-          className="relative mt-8 grid grid-cols-[16px,1fr] gap-4"
+          className="relative mt-8 grid grid-cols-[16px,1fr] gap-4 justify-center"
         >
           {/* Радужная линия */}
           <motion.div
@@ -94,7 +94,7 @@ export default function Experience() {
           </motion.div>
 
           {/* Карточки */}
-          <div className="space-y-5">
+          <div className="space-y-5 max-w-9xl mx-auto w-full">
             <AnimatePresence initial={false}>
               {EXPERIENCE.map((e, i) => {
                 const isOpen = openMap[e.company]?.open ?? false;
@@ -106,12 +106,12 @@ export default function Experience() {
                     whileInView={{ opacity: 1, y: 0, scale: 1 }}
                     viewport={{ once: true, amount: 0.2 }}
                     transition={{ type: "spring", stiffness: 320, damping: 22 }}
-                    className="group relative"
+                    className="group relative overflow-visible"
                   >
                     {/* Точка */}
                     <motion.div
                       aria-hidden
-                      className="absolute -left-[26px] top-2 size-5 rounded-full grid place-items-center"
+                      className="absolute -left-[26px] top-2 size-5 rounded-full grid place-items-center z-0"
                       style={{ boxShadow: "0 6px 18px -8px var(--decor-glow)" }}
                       animate={
                         isOpen && !reduce
@@ -141,7 +141,7 @@ export default function Experience() {
                       />
                     </motion.div>
 
-                    {/* Карточка со стеклянным фоном */}
+                    {/* Карточка */}
                     <motion.div
                       whileHover={
                         reduce
@@ -153,12 +153,13 @@ export default function Experience() {
                             }
                       }
                       className="
-                        relative rounded-3xl p-6 md:p-7
+                        relative z-10 rounded-3xl p-6 md:p-7
                         bg-[var(--glass-bg)] border border-[var(--glass-border)]
                         backdrop-blur-2xl
                         shadow-[0_8px_30px_-10px_var(--glow)]
                         hover:shadow-[0_10px_35px_-8px_var(--glow)]
                         transition-all duration-300
+                        transform-gpu
                       "
                       style={{
                         backgroundImage:

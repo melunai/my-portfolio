@@ -1,17 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useLayoutEffect } from "react";
 import { motion } from "framer-motion";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import { DATA, type Project } from "../data";
 import ProjectModal from "./ProjectModal";
+import SectionLead from "./SectionLead";
+import Section from "./Section";
 
-/**
- * Верх: горизонтальная «герой»-полка (по центру крупный, края видны)
- * Низ: минималистичный список всех проектов с фильтром по стеку
- * Обложки показываются аккуратно (object-contain) + скелетон, портреты и альбомные выглядят красиво.
- */
-
-const GAP_PX = 18;
+const GAP_PX = 28;
 const SIDE_SCALE = 1;
 const SIDE_FADE = 1;
 
@@ -19,75 +15,68 @@ export default function Projects() {
   const projects = DATA.projects;
   const [activeIdx, setActiveIdx] = useState(0);
   const [activeProject, setActiveProject] = useState<Project | null>(null);
-
-  // фильтр для общего списка
   const [filter, setFilter] = useState<string | null>(null);
 
-  const slideWidthPct = 100;
+  const slideWidthPct = 70;
 
   const { tags, counts } = useMemo(() => {
     const counts = new Map<string, number>();
-    projects.forEach((p) => p.stack.forEach((t) => counts.set(t, (counts.get(t) ?? 0) + 1)));
+    projects.forEach((p) =>
+      p.stack.forEach((t) => counts.set(t, (counts.get(t) ?? 0) + 1))
+    );
     const tags = Array.from(counts.keys()).sort((a, b) => a.localeCompare(b));
     return { tags, counts };
   }, [projects]);
 
-  // управление полкой
   const prev = () => setActiveIdx((i) => (i - 1 + projects.length) % projects.length);
   const next = () => setActiveIdx((i) => (i + 1) % projects.length);
 
-  // центрирование активной карточки
-  const trackRef = useRef<HTMLDivElement | null>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
+  const [cardPx, setCardPx] = useState(0);
 
-  useEffect(() => {
-    const vp = viewportRef.current;
-    const track = trackRef.current;
-    if (!vp || !track) return;
-
-    const vpWidth = vp.clientWidth;
-    const cardWidth = Math.round((vpWidth * slideWidthPct) / 100);
-    const offsetX = activeIdx * (cardWidth + GAP_PX);
-
-    const targetScrollLeft = offsetX - (vpWidth - cardWidth) / 2;
-    vp.scrollTo({ left: targetScrollLeft, behavior: "smooth" });
-  }, [activeIdx, slideWidthPct]);
-
-  useEffect(() => {
+  // вычисляем ширину карточки
+  useLayoutEffect(() => {
     const vp = viewportRef.current;
     if (!vp) return;
-    const onWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-      if (e.deltaY > 10) next();
-      else if (e.deltaY < -10) prev();
-    };
-    vp.addEventListener("wheel", onWheel, { passive: true });
-    return () => vp.removeEventListener("wheel", onWheel);
-  }, []);
+    const update = () => setCardPx(Math.round((vp.clientWidth * slideWidthPct) / 100));
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(vp);
+    return () => ro.disconnect();
+  }, [slideWidthPct]);
 
-  // отфильтрованная лента для нижнего списка
+  // центрируем карточку при переключении
+  useEffect(() => {
+    const vp = viewportRef.current;
+    if (!vp || !cardPx) return;
+    const offsetX = activeIdx * (cardPx + GAP_PX);
+    const targetScrollLeft = offsetX - (vp.clientWidth - cardPx) / 2;
+    vp.scrollTo({ left: targetScrollLeft, behavior: "smooth" });
+  }, [activeIdx, cardPx]);
+
   const filtered = useMemo(
     () => (!filter ? projects : projects.filter((p) => p.stack.includes(filter))),
     [projects, filter]
   );
 
   return (
-    <section id="projects" className="scroll-mt-24">
+    <Section id="projects" title="Проекты">
       <div className="mb-6">
-        <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">Проекты</h2>
-        <p className="mt-2 text-sm opacity-80">
-          Наверху — «герой»-слайдер с крупной карточкой по центру. Внизу — минималистичный список со стек-фильтром.
-        </p>
+        <SectionLead>Участие в проектах и вклад в них</SectionLead>
       </div>
 
       {/* ===== Горизонтальная полка ===== */}
       <ScrollArea.Root type="always" className="relative">
         <ScrollArea.Viewport
           ref={viewportRef}
-          className="w-full overflow-x-auto overflow-y-hidden [scrollbar-width:none] [-ms-overflow-style:none]"
+          className="w-full overflow-x-hidden"
           style={{ paddingBottom: 8 }}
+          aria-label="Полка с проектами"
         >
-          <div ref={trackRef} className="flex items-stretch" style={{ gap: GAP_PX, padding: "2px 6px" }}>
+          <div
+            className="flex flex-nowrap items-stretch justify-center"
+            style={{ gap: GAP_PX, padding: "2px 6px" }}
+          >
             {projects.map((p, idx) => {
               const isActive = idx === activeIdx;
               return (
@@ -95,7 +84,7 @@ export default function Projects() {
                   key={p.title}
                   project={p}
                   isActive={isActive}
-                  widthPct={slideWidthPct}
+                  cardPx={cardPx}
                   onOpen={() => setActiveProject(p)}
                   onClick={() => setActiveIdx(idx)}
                 />
@@ -103,22 +92,13 @@ export default function Projects() {
             })}
           </div>
         </ScrollArea.Viewport>
-
-        <ScrollArea.Scrollbar orientation="horizontal" className="h-2 mt-2">
-          <ScrollArea.Thumb
-            className="h-full rounded-[4px]"
-            style={{
-              background: "linear-gradient(90deg, var(--ribbon-sheen-start), var(--accent), var(--ribbon-sheen-end))",
-              opacity: 0.45,
-            }}
-          />
-        </ScrollArea.Scrollbar>
-        <ScrollArea.Corner />
       </ScrollArea.Root>
 
       {/* Точки + стрелки */}
       <div className="mt-4 flex items-center justify-center gap-3">
-        <button type="button" onClick={prev} className="btn px-3 py-1.5" aria-label="Предыдущий проект">←</button>
+        <button type="button" onClick={prev} className="btn px-3 py-1.5" aria-label="Предыдущий проект">
+          ←
+        </button>
         <RadioGroup.Root
           className="inline-flex items-center gap-2"
           value={String(activeIdx)}
@@ -139,15 +119,12 @@ export default function Projects() {
                 transition: "all .25s ease",
               }}
               aria-label={`К проекту ${idx + 1}`}
-            >
-              <RadioGroup.Indicator
-                className="absolute inset-0 rounded-full"
-                style={{ boxShadow: "0 0 0 3px color-mix(in oklab, var(--accent), transparent 70%)" }}
-              />
-            </RadioGroup.Item>
+            />
           ))}
         </RadioGroup.Root>
-        <button type="button" onClick={next} className="btn px-3 py-1.5" aria-label="Следующий проект">→</button>
+        <button type="button" onClick={next} className="btn px-3 py-1.5" aria-label="Следующий проект">
+          →
+        </button>
       </div>
 
       {/* Модалка */}
@@ -155,7 +132,6 @@ export default function Projects() {
 
       {/* ===== Минималистичный список снизу ===== */}
       <div className="mt-10">
-        {/* Фильтр */}
         <div className="mb-4 flex flex-wrap gap-2">
           <button
             onClick={() => setFilter(null)}
@@ -179,7 +155,6 @@ export default function Projects() {
           })}
         </div>
 
-        {/* Список (минимал) */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p) => (
             <button
@@ -187,7 +162,6 @@ export default function Projects() {
               onClick={() => setActiveProject(p)}
               className="card text-left p-3 hover:shadow-md transition-shadow"
             >
-              {/* Адаптивная высота превью: 160–240px в зависимости от ширины экрана */}
               <div
                 className="grid place-items-center bg-[var(--card)] rounded-lg overflow-hidden"
                 style={{ height: "clamp(160px, 26vw, 240px)" }}
@@ -198,7 +172,9 @@ export default function Projects() {
                 <div className="font-medium text-[color:var(--fg)] line-clamp-1">{p.title}</div>
                 <div className="mt-1 flex flex-wrap gap-1.5">
                   {p.stack.slice(0, 4).map((s) => (
-                    <span key={s} className="chip pastel-chip text-[11px]">{s}</span>
+                    <span key={s} className="chip pastel-chip text-[11px]">
+                      {s}
+                    </span>
                   ))}
                   {p.stack.length > 4 && (
                     <span className="chip pastel-chip text-[11px]">+{p.stack.length - 4}</span>
@@ -209,26 +185,20 @@ export default function Projects() {
           ))}
         </div>
       </div>
-    </section>
+    </Section>
   );
 }
 
-/* ===== Обложка с мягким скелетоном и аккуратным fit ===== */
+/* ===== CoverImage ===== */
 function CoverImage({ project, className = "" }: { project: Project; className?: string }) {
-  const cover =
-    ((project as any).images?.[0] as string | undefined) ??
-    (project as any).image;
-
+  const cover = ((project as any).images?.[0] as string | undefined) ?? (project as any).image;
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
 
-  if (!cover || failed) {
+  if (!cover || failed)
     return (
-      <div className="w-full h-full grid place-items-center text-xs opacity-60">
-        Нет изображения
-      </div>
+      <div className="w-full h-full grid place-items-center text-xs opacity-60">Нет изображения</div>
     );
-  }
 
   return (
     <div className="relative w-full h-full">
@@ -247,17 +217,17 @@ function CoverImage({ project, className = "" }: { project: Project; className?:
   );
 }
 
-/* ===== Карточка-слайд для верхней полки ===== */
+/* ===== SlideCard ===== */
 function SlideCard({
   project,
   isActive,
-  widthPct,
+  cardPx,
   onOpen,
   onClick,
 }: {
   project: Project;
   isActive: boolean;
-  widthPct: number;
+  cardPx: number;
   onOpen: () => void;
   onClick: () => void;
 }) {
@@ -266,7 +236,12 @@ function SlideCard({
       layout
       onClick={onClick}
       className="relative cursor-pointer select-none"
-      style={{ flex: `0 0 ${widthPct}%`, borderRadius: 16 }}
+      style={{
+        flex: "0 0 auto",
+        width: cardPx ? `${cardPx}px` : undefined,
+        borderRadius: 16,
+        scrollSnapAlign: "center",
+      }}
       initial={false}
       animate={{
         scale: isActive ? 1 : SIDE_SCALE,
@@ -283,21 +258,24 @@ function SlideCard({
           onOpen();
         }}
       >
-        {/* Обложка: центр, без обрезки; адаптивная высота 200–320px */}
         <div className="w-full bg-[var(--card)]">
-          <div className="grid place-items-center overflow-hidden" style={{ height: "clamp(200px, 40vh, 320px)" }}>
+          <div
+            className="grid place-items-center overflow-hidden"
+            style={{ height: "clamp(200px, 40vh, 320px)" }}
+          >
             <CoverImage project={project} className="max-h-[320px]" />
           </div>
         </div>
 
-        {/* Контент */}
         <div className="p-4 md:p-5 relative z-[2]">
           <h3 className="font-semibold text-[color:var(--fg)] line-clamp-1">{project.title}</h3>
           <p className="mt-1 text-sm opacity-80 line-clamp-2">{project.description}</p>
 
           <div className="mt-3 flex flex-wrap gap-1.5">
             {project.stack.slice(0, 6).map((s) => (
-              <span key={s} className="chip pastel-chip text-xs">{s}</span>
+              <span key={s} className="chip pastel-chip text-xs">
+                {s}
+              </span>
             ))}
             {project.stack.length > 6 && (
               <span className="chip pastel-chip text-xs">+{project.stack.length - 6}</span>
@@ -340,7 +318,6 @@ function SlideCard({
           </div>
         </div>
 
-        {/* Розовый silky-hover поверх */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-85"

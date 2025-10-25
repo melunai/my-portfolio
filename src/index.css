@@ -551,3 +551,33 @@ body {
   opacity: 0.15;
   pointer-events: none;
 }
+/* === reCAPTCHA badge custom placement and animation === */
+.grecaptcha-badge {
+  position: fixed !important;
+  left: 16px !important;
+  right: auto !important;
+  bottom: 16px !important;
+  z-index: 9999;
+  transform-origin: bottom left;
+  transform: scale(0.9);
+  opacity: 0.4;
+  filter: blur(0.2px);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    filter 0.3s ease;
+}
+
+/* мягкое появление при наведении или фокусе */
+.grecaptcha-badge:hover,
+.grecaptcha-badge:focus-within,
+form:hover ~ .grecaptcha-badge {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+}
+
+/* для тёмной темы делаем чуть светлее */
+[data-theme="dark"] .grecaptcha-badge {
+  opacity: 0.6;
+}

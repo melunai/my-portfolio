@@ -112,7 +112,11 @@ export const DATA = {
       title: "Lory-MPIT — «Умный помощник» (Drivee)",
       description:
         "Определение оптимальной рекомендованной цены бида для водителей для повышения выполняемости заказов и роста доходности.",
-      image: "/images/projects/lory-mpit.jpg",
+      images: [
+        "/images/mpit/mpit.png",
+
+      ],
+      image: "/images/mpit/mpit.png",
       stack: ["TypeScript", "React"],
       repoUrl: "https://github.com/ShiruiChan/mpit-2025-start",
       period: "2025",

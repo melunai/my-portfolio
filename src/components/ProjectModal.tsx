@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import type { Project } from "../data";
 
 type Props = {
@@ -7,11 +7,123 @@ type Props = {
 };
 
 type Orientation = "portrait" | "landscape" | "square";
+type FillMode = "contain" | "cover";
 
+/* ---------- ВСПОМОГАТЕЛЬНОЕ: EXIF ORIENTATION ---------- */
+/** Быстрый парсер только Orientation (0x0112) из EXIF у JPEG. Возвращает 1,3,6,8 или null. */
+async function getExifOrientation(url: string): Promise<1 | 3 | 6 | 8 | null> {
+  try {
+    // Забираем только первые ~128KB — почти всегда хватит для сегмента APP1/EXIF
+    const res = await fetch(url, { mode: "cors" });
+    const blob = await res.blob();
+    const head = await blob.slice(0, 128 * 1024).arrayBuffer();
+    const view = new DataView(head);
+
+    // JPEG SOI
+    if (view.getUint16(0, false) !== 0xffd8) return null;
+
+    let offset = 2;
+    while (offset + 4 <= view.byteLength) {
+      const marker = view.getUint16(offset, false);
+      offset += 2;
+      if ((marker & 0xff00) !== 0xff00) break;
+      const size = view.getUint16(offset, false);
+      if (size < 2) break;
+      if (marker === 0xffe1 /* APP1 */) {
+        // Проверяем EXIF сигнатуру
+        const exifStart = offset + 2;
+        const exifHeader = new Uint8Array(head, exifStart, 6);
+        const isExif =
+          exifHeader[0] === 0x45 &&
+          exifHeader[1] === 0x78 &&
+          exifHeader[2] === 0x69 &&
+          exifHeader[3] === 0x66 &&
+          exifHeader[4] === 0x00 &&
+          exifHeader[5] === 0x00;
+        if (!isExif) break;
+
+        const tiffOffset = exifStart + 6;
+        const little = view.getUint16(tiffOffset, false) === 0x4949;
+        const get16 = (off: number) => view.getUint16(off, little);
+        const get32 = (off: number) => view.getUint32(off, little);
+
+        // Смещение до IFD0
+        const ifd0 = tiffOffset + get32(tiffOffset + 4);
+        const entries = get16(ifd0);
+        for (let i = 0; i < entries; i++) {
+          const entry = ifd0 + 2 + i * 12;
+          const tag = get16(entry);
+          if (tag === 0x0112 /* Orientation */) {
+            const val = get16(entry + 8);
+            if (val === 1 || val === 3 || val === 6 || val === 8) return val as 1 | 3 | 6 | 8;
+            return null;
+          }
+        }
+        break;
+      } else {
+        offset += size;
+      }
+    }
+  } catch {
+    /* ignore — не критично */
+  }
+  return null;
+}
+
+/** CSS-трансформация под EXIF (минимальный набор 1/3/6/8). */
+function transformForEXIF(orientation: 1 | 3 | 6 | 8 | null) {
+  switch (orientation) {
+    case 3:
+      return "rotate(180deg)";
+    case 6:
+      return "rotate(90deg)";
+    case 8:
+      return "rotate(-90deg)";
+    default:
+      return "none";
+  }
+}
+
+/* ---------- ЛЕНИВАЯ КАРТИНКА ---------- */
+function LazyImg(props: React.ImgHTMLAttributes<HTMLImageElement> & { realSrc: string }) {
+  const { realSrc, ...rest } = props;
+  const [src, setSrc] = useState<string>("");
+  const holderRef = useRef<HTMLImageElement | null>(null);
+
+  useEffect(() => {
+    let io: IntersectionObserver | null = null;
+    const el = holderRef.current;
+    if (!el) return;
+
+    if ("IntersectionObserver" in window) {
+      io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              setSrc(realSrc);
+              io?.disconnect();
+            }
+          });
+        },
+        { rootMargin: "200px" }
+      );
+      io.observe(el);
+    } else {
+      // Fallback: сразу грузим
+      setSrc(realSrc);
+    }
+
+    return () => io?.disconnect();
+  }, [realSrc]);
+
+  return <img ref={holderRef} src={src} {...rest} />;
+}
+
+/* ======================================================= */
 export default function ProjectModal({ project, onClose }: Props) {
   const open = Boolean(project);
 
-  // собираем список изображений
+  // Список изображений (поддержка image / images)
   const images = useMemo(() => {
     if (!project) return [] as string[];
     const list = (project as any).images as string[] | undefined;
@@ -23,13 +135,16 @@ export default function ProjectModal({ project, onClose }: Props) {
   const [idx, setIdx] = useState(0);
   const [lightbox, setLightbox] = useState(false);
   const [orientation, setOrientation] = useState<Orientation>("landscape");
+  const [fillMode, setFillMode] = useState<FillMode>("contain"); // ⟵ «безрамочный» режим: cover
+  const [exifMap, setExifMap] = useState<Record<string, 1 | 3 | 6 | 8 | null>>({});
 
+  // Сброс при смене проекта
   useEffect(() => {
     setIdx(0);
     setLightbox(false);
   }, [project]);
 
-  // клавиши: Esc/←/→ (Esc закрывает лайтбокс или модалку)
+  // Клавиатура: Esc / ← / →
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -46,7 +161,7 @@ export default function ProjectModal({ project, onClose }: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, lightbox, images.length, onClose]);
 
-  // свайпы
+  // Свайпы
   const startX = useRef<number | null>(null);
   const onTouchStart = (e: React.TouchEvent) => (startX.current = e.touches[0].clientX);
   const onTouchEnd = (e: React.TouchEvent) => {
@@ -59,18 +174,7 @@ export default function ProjectModal({ project, onClose }: Props) {
     startX.current = null;
   };
 
-  // определяем ориентацию текущего кадра
-  const handleImgLoad = (img: HTMLImageElement | null) => {
-    if (!img) return;
-    const { naturalWidth: w, naturalHeight: h } = img;
-    if (!w || !h) return;
-    const ratio = w / h;
-    if (Math.abs(ratio - 1) < 0.06) setOrientation("square");
-    else if (ratio < 1) setOrientation("portrait");
-    else setOrientation("landscape");
-  };
-
-  // предзагрузка соседних кадров
+  // Предзагрузка соседних кадров (после появления текущего)
   useEffect(() => {
     if (images.length <= 1) return;
     const preload = (src: string) => {
@@ -83,15 +187,51 @@ export default function ProjectModal({ project, onClose }: Props) {
     preload(images[(idx - 1 + images.length) % images.length]!);
   }, [idx, images]);
 
+  // Вычисление ориентации кадра (учитывая EXIF — для 6/8 меняем соотношение)
+  const handleImgLoad = useCallback(
+    (img: HTMLImageElement | null, src: string) => {
+      if (!img) return;
+      const { naturalWidth: w, naturalHeight: h } = img;
+      if (!w || !h) return;
+      const exif = exifMap[src] ?? null;
+      const w2 = exif === 6 || exif === 8 ? h : w;
+      const h2 = exif === 6 || exif === 8 ? w : h;
+      const ratio = w2 / h2;
+      if (Math.abs(ratio - 1) < 0.06) setOrientation("square");
+      else if (ratio < 1) setOrientation("portrait");
+      else setOrientation("landscape");
+    },
+    [exifMap]
+  );
+
+  // При первом показе каждого src — читаем EXIF и кэшируем
+  useEffect(() => {
+    const src = images[idx];
+    if (!src) return;
+    if (exifMap[src] !== undefined) return;
+    let alive = true;
+    getExifOrientation(src).then((o) => {
+      if (!alive) return;
+      setExifMap((m) => ({ ...m, [src]: o }));
+    });
+    return () => {
+      alive = false;
+    };
+  }, [images, idx, exifMap]);
+
   if (!open || !project) return null;
 
-  // высота превью по ориентации кадра
+  // Высота превью по ориентации кадра
   const galleryHeightClass =
     orientation === "portrait"
       ? "h-[68vh] md:h-[78vh]"
       : orientation === "square"
       ? "h-[60vh] md:h-[72vh]"
       : "h-[52vh] md:h-[70vh]";
+
+  const currSrc = images[idx];
+  const exif = exifMap[currSrc] ?? null;
+  const rotation = transformForEXIF(exif);
 
   return (
     <>
@@ -115,7 +255,18 @@ export default function ProjectModal({ project, onClose }: Props) {
                 <p className="text-sm opacity-80 mt-0.5">{project.description}</p>
               )}
             </div>
+
             <div className="flex items-center gap-2">
+              {/* Переключатель режима заполнения */}
+              <button
+                onClick={() => setFillMode((m) => (m === "contain" ? "cover" : "contain"))}
+                className="btn"
+                title="Переключить режим кадрирования"
+                aria-pressed={fillMode === "cover"}
+              >
+                {fillMode === "cover" ? "Безрамочный: вкл." : "Безрамочный: выкл."}
+              </button>
+
               {project.liveUrl && (
                 <a
                   href={project.liveUrl}
@@ -146,20 +297,29 @@ export default function ProjectModal({ project, onClose }: Props) {
           <div className="grid md:grid-cols-3 gap-0">
             {/* Галерея */}
             <div className="md:col-span-2 relative bg-[var(--card)]">
-              {/* Центрируем, вписываем; высота зависит от ориентации */}
+              {/* Центрируем, вписываем; высота зависит от ориентации + режим заполнения */}
               <div
                 className={`relative grid place-items-center ${galleryHeightClass} select-none`}
                 onTouchStart={onTouchStart}
                 onTouchEnd={onTouchEnd}
               >
                 {images.length ? (
-                  <img
-                    src={images[idx]}
+                  <LazyImg
+                    key={currSrc}
+                    realSrc={currSrc}
                     alt={`${project.title} — фото ${idx + 1}/${images.length}`}
-                    className="max-h-full max-w-full w-auto h-auto object-contain cursor-zoom-in transition-transform duration-300"
+                    className={[
+                      "max-h-full max-w-full w-auto h-auto transition-transform duration-300 cursor-zoom-in",
+                      fillMode === "cover" ? "w-full h-full object-cover" : "object-contain",
+                    ].join(" ")}
+                    style={{
+                      transform: rotation === "none" ? undefined : rotation,
+                      // Когда вращаем 90°, object-fit ведёт себя нормально, но
+                      // лёгкий overscroll фильтром сглаживает «ступеньку»:
+                      willChange: "transform",
+                    }}
                     onClick={() => setLightbox(true)}
-                    onLoad={(e) => handleImgLoad(e.currentTarget)}
-                    loading="eager"
+                    onLoad={(e) => handleImgLoad(e.currentTarget, currSrc)}
                     decoding="async"
                     draggable={false}
                   />
@@ -193,35 +353,46 @@ export default function ProjectModal({ project, onClose }: Props) {
                 )}
               </div>
 
-              {/* Миниатюры */}
+              {/* Миниатюры (ленивая загрузка) */}
               {images.length > 1 && (
                 <div className="px-3 py-2 border-t border-[var(--border)]">
                   <div className="flex gap-2 overflow-x-auto pb-1">
-                    {images.map((src, i) => (
-                      <button
-                        key={src + i}
-                        type="button"
-                        className="relative rounded-md overflow-hidden"
-                        style={{
-                          width: 80,
-                          height: 52,
-                          outline:
-                            i === idx
-                              ? "2px solid color-mix(in oklab, var(--accent), white 25%)"
-                              : "1px solid var(--border)",
-                        }}
-                        onClick={() => setIdx(i)}
-                        aria-label={`Показать фото ${i + 1}`}
-                      >
-                        <img
-                          src={src}
-                          alt=""
-                          loading="lazy"
-                          decoding="async"
-                          className="w-full h-full object-cover"
-                        />
-                      </button>
-                    ))}
+                    {images.map((src, i) => {
+                      const miniExif = exifMap[src] ?? null;
+                      const miniRotation = transformForEXIF(miniExif);
+                      return (
+                        <button
+                          key={src + i}
+                          type="button"
+                          className="relative rounded-md overflow-hidden"
+                          style={{
+                            width: 80,
+                            height: 52,
+                            outline:
+                              i === idx
+                                ? "2px solid color-mix(in oklab, var(--accent), white 25%)"
+                                : "1px solid var(--border)",
+                          }}
+                          onClick={() => setIdx(i)}
+                          aria-label={`Показать фото ${i + 1}`}
+                        >
+                          <LazyImg
+                            realSrc={src}
+                            alt=""
+                            decoding="async"
+                            className="w-full h-full object-cover"
+                            style={{ transform: miniRotation }}
+                            onLoad={() => {
+                              if (exifMap[src] === undefined) {
+                                getExifOrientation(src).then((o) =>
+                                  setExifMap((m) => ({ ...m, [src]: o }))
+                                );
+                              }
+                            }}
+                          />
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -280,11 +451,14 @@ export default function ProjectModal({ project, onClose }: Props) {
           className="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-sm flex items-center justify-center animate-fade-in"
           onClick={() => setLightbox(false)}
         >
-          <img
-            src={images[idx]}
+          <LazyImg
+            realSrc={currSrc}
             alt="Полный размер"
-            className="max-w-[95vw] max-h-[90vh] object-contain cursor-zoom-out transition-transform duration-300"
-            loading="eager"
+            className={[
+              "max-w-[95vw] max-h-[90vh] object-contain cursor-zoom-out transition-transform duration-300",
+              fillMode === "cover" ? "object-cover" : "object-contain",
+            ].join(" ")}
+            style={{ transform: rotation }}
             decoding="async"
           />
         </div>
