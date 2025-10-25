@@ -4,13 +4,31 @@ import GlassCard from "./GlassCard";
 import ContactForm from "./ContactForm";
 import { Mail, Send } from "lucide-react";
 import { DATA } from "../data";
-import type{ JSX } from "react";
+import type { JSX } from "react";
+import { motion } from "framer-motion";
+import { useIOInView } from "./useIOInView";
 
 export default function Contact(): JSX.Element {
+  // IO-въезд для всей карточки контактов + лёгкий pop-in
+  const { ref, inView } = useIOInView<HTMLDivElement>({
+    once: true,
+    rootMargin: "-20% 0% -40% 0%",
+  });
+
+  const cardVar = {
+    hide: { opacity: 0, y: 16, scale: 0.98, filter: "blur(6px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+      transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as any },
+    },
+  };
+
   return (
     <Section id="contact" title="Связаться со мной">
-      <div className="relative">
-
+      <motion.div ref={ref} initial="hide" animate={inView ? "show" : "hide"} variants={cardVar} className="relative">
         <GlassCard
           className="relative overflow-hidden p-6 md:p-10"
           style={{
@@ -62,14 +80,11 @@ export default function Contact(): JSX.Element {
             </div>
 
             <div className="max-w-xl md:ml-auto">
-              <ContactForm
-                targetEmail={DATA.email}
-                defaultTelegram={DATA.telegram}
-              />
+              <ContactForm targetEmail={DATA.email} defaultTelegram={DATA.telegram} />
             </div>
           </div>
         </GlassCard>
-      </div>
+      </motion.div>
     </Section>
   );
 }

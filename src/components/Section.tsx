@@ -1,23 +1,32 @@
 import type { PropsWithChildren } from "react";
 import { motion } from "framer-motion";
+import { useIOInView } from "./useIOInView";
 
 type Props = PropsWithChildren<{ id: string; title: string }>;
 
-/**
- * Обновлённая секция:
- * — крупный нежный заголовок с "стеклянным" размытием низа
- * — центрированная композиция
- * — мягкая анимация появления
- */
 export default function Section({ id, title, children }: Props) {
+  const { ref, inView } = useIOInView<HTMLHeadingElement>({ once: true });
+  const variants = {
+    hide: { opacity: 0, y: 20, scale: 0.98 },
+    show: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any },
+    },
+  };
+
   return (
-    <section id={id} className="scroll-mt-24 py-20 md:py-28 relative overflow-hidden">
+    <section
+      id={id}
+      className="scroll-mt-24 py-20 md:py-28 relative overflow-hidden"
+    >
       <div className="text-center mb-12">
         <motion.h2
-          initial={{ opacity: 0, y: 20, scale: 0.98 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          ref={ref}
+          initial="hide"
+          animate={inView ? "show" : "hide"}
+          variants={variants}
           className="
             glass-section-title
             font-extrabold tracking-tight
@@ -29,9 +38,7 @@ export default function Section({ id, title, children }: Props) {
         >
           {title}
         </motion.h2>
-
       </div>
-
       {children}
     </section>
   );

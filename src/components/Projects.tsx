@@ -59,132 +59,151 @@ export default function Projects() {
     [projects, filter]
   );
 
+  // ====== общие задержки: заголовок (в Section), затем lead, затем контент ======
+  const LEAD_DELAY = 0.35;
+  const BODY_DELAY = 0.70;
+
   return (
     <Section id="projects" title="Проекты">
-      <div className="mb-6">
+      {/* 2) Подзаголовок — после заголовка секции */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.5 }}
+        transition={{ duration: 0.5, delay: LEAD_DELAY, ease: [0.22, 1, 0.36, 1] }}
+        className="mb-6"
+      >
         <SectionLead>Участие в проектах и вклад в них</SectionLead>
-      </div>
+      </motion.div>
 
-      {/* ===== Горизонтальная полка ===== */}
-      <ScrollArea.Root type="always" className="relative">
-        <ScrollArea.Viewport
-          ref={viewportRef}
-          className="w-full overflow-x-hidden"
-          style={{ paddingBottom: 8 }}
-          aria-label="Полка с проектами"
-        >
-          <div
-            className="flex flex-nowrap items-stretch justify-center"
-            style={{ gap: GAP_PX, padding: "2px 6px" }}
+      {/* 3) Основная часть — после подзаголовка */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.35 }}
+        transition={{ duration: 0.55, delay: BODY_DELAY, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {/* ===== Горизонтальная полка ===== */}
+        <ScrollArea.Root type="always" className="relative">
+          <ScrollArea.Viewport
+            ref={viewportRef}
+            className="w-full overflow-x-hidden"
+            style={{ paddingBottom: 8 }}
+            aria-label="Полка с проектами"
           >
-            {projects.map((p, idx) => {
-              const isActive = idx === activeIdx;
+            <div
+              className="flex flex-nowrap items-stretch justify-center"
+              style={{ gap: GAP_PX, padding: "2px 6px" }}
+            >
+              {projects.map((p, idx) => {
+                const isActive = idx === activeIdx;
+                return (
+                  <SlideCard
+                    key={p.title}
+                    project={p}
+                    isActive={isActive}
+                    cardPx={cardPx}
+                    onOpen={() => setActiveProject(p)}
+                    onClick={() => setActiveIdx(idx)}
+                  />
+                );
+              })}
+            </div>
+          </ScrollArea.Viewport>
+        </ScrollArea.Root>
+
+        {/* Точки + стрелки */}
+        <div className="mt-4 flex items-center justify-center gap-3">
+          <button type="button" onClick={prev} className="btn px-3 py-1.5" aria-label="Предыдущий проект">
+            ←
+          </button>
+          <RadioGroup.Root
+            className="inline-flex items-center gap-2"
+            value={String(activeIdx)}
+            onValueChange={(v) => setActiveIdx(Number(v))}
+            aria-label="Навигация по проектам"
+          >
+            {projects.map((_, idx) => (
+              <RadioGroup.Item
+                key={idx}
+                value={String(idx)}
+                className="relative h-3 w-3 rounded-full border border-[var(--border)] data-[state=checked]:border-transparent"
+                style={{
+                  background:
+                    activeIdx === idx
+                      ? "linear-gradient(90deg, var(--ribbon-sheen-start), var(--accent))"
+                      : "color-mix(in oklab, var(--card), var(--accent) 10%)",
+                  opacity: activeIdx === idx ? 1 : 0.7,
+                  transition: "all .25s ease",
+                }}
+                aria-label={`К проекту ${idx + 1}`}
+              />
+            ))}
+          </RadioGroup.Root>
+          <button type="button" onClick={next} className="btn px-3 py-1.5" aria-label="Следующий проект">
+            →
+          </button>
+        </div>
+
+        {/* Модалка */}
+        <ProjectModal project={activeProject} onClose={() => setActiveProject(null)} />
+
+        {/* ===== Минималистичный список снизу ===== */}
+        <div className="mt-10">
+          <div className="mb-4 flex flex-wrap gap-2">
+            <button
+              onClick={() => setFilter(null)}
+              className={`btn-filter ${!filter ? "is-active" : ""}`}
+              aria-pressed={!filter}
+            >
+              Все <span className="filter-badge">{projects.length}</span>
+            </button>
+            {tags.map((t) => {
+              const isActive = filter === t;
               return (
-                <SlideCard
-                  key={p.title}
-                  project={p}
-                  isActive={isActive}
-                  cardPx={cardPx}
-                  onOpen={() => setActiveProject(p)}
-                  onClick={() => setActiveIdx(idx)}
-                />
+                <button
+                  key={t}
+                  onClick={() => setFilter(isActive ? null : t)}
+                  className={`btn-filter ${isActive ? "is-active" : ""}`}
+                  aria-pressed={isActive}
+                >
+                  {t} <span className="filter-badge">{counts.get(t)}</span>
+                </button>
               );
             })}
           </div>
-        </ScrollArea.Viewport>
-      </ScrollArea.Root>
 
-      {/* Точки + стрелки */}
-      <div className="mt-4 flex items-center justify-center gap-3">
-        <button type="button" onClick={prev} className="btn px-3 py-1.5" aria-label="Предыдущий проект">
-          ←
-        </button>
-        <RadioGroup.Root
-          className="inline-flex items-center gap-2"
-          value={String(activeIdx)}
-          onValueChange={(v) => setActiveIdx(Number(v))}
-          aria-label="Навигация по проектам"
-        >
-          {projects.map((_, idx) => (
-            <RadioGroup.Item
-              key={idx}
-              value={String(idx)}
-              className="relative h-3 w-3 rounded-full border border-[var(--border)] data-[state=checked]:border-transparent"
-              style={{
-                background:
-                  activeIdx === idx
-                    ? "linear-gradient(90deg, var(--ribbon-sheen-start), var(--accent))"
-                    : "color-mix(in oklab, var(--card), var(--accent) 10%)",
-                opacity: activeIdx === idx ? 1 : 0.7,
-                transition: "all .25s ease",
-              }}
-              aria-label={`К проекту ${idx + 1}`}
-            />
-          ))}
-        </RadioGroup.Root>
-        <button type="button" onClick={next} className="btn px-3 py-1.5" aria-label="Следующий проект">
-          →
-        </button>
-      </div>
-
-      {/* Модалка */}
-      <ProjectModal project={activeProject} onClose={() => setActiveProject(null)} />
-
-      {/* ===== Минималистичный список снизу ===== */}
-      <div className="mt-10">
-        <div className="mb-4 flex flex-wrap gap-2">
-          <button
-            onClick={() => setFilter(null)}
-            className={`btn-filter ${!filter ? "is-active" : ""}`}
-            aria-pressed={!filter}
-          >
-            Все <span className="filter-badge">{projects.length}</span>
-          </button>
-          {tags.map((t) => {
-            const isActive = filter === t;
-            return (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((p) => (
               <button
-                key={t}
-                onClick={() => setFilter(isActive ? null : t)}
-                className={`btn-filter ${isActive ? "is-active" : ""}`}
-                aria-pressed={isActive}
+                key={`mini-${p.title}`}
+                onClick={() => setActiveProject(p)}
+                className="card text-left p-3 hover:shadow-md transition-shadow"
               >
-                {t} <span className="filter-badge">{counts.get(t)}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((p) => (
-            <button
-              key={`mini-${p.title}`}
-              onClick={() => setActiveProject(p)}
-              className="card text-left p-3 hover:shadow-md transition-shadow"
-            >
-              <div
-                className="grid place-items-center bg-[var(--card)] rounded-lg overflow-hidden"
-                style={{ height: "clamp(160px, 26vw, 240px)" }}
-              >
-                <CoverImage project={p} className="max-h-[240px]" />
-              </div>
-              <div className="mt-3">
-                <div className="font-medium text-[color:var(--fg)] line-clamp-1">{p.title}</div>
-                <div className="mt-1 flex flex-wrap gap-1.5">
-                  {p.stack.slice(0, 4).map((s) => (
-                    <span key={s} className="chip pastel-chip text-[11px]">
-                      {s}
-                    </span>
-                  ))}
-                  {p.stack.length > 4 && (
-                    <span className="chip pastel-chip text-[11px]">+{p.stack.length - 4}</span>
-                  )}
+                <div
+                  className="grid place-items-center bg-[var(--card)] rounded-lg overflow-hidden"
+                  style={{ height: "clamp(160px, 26vw, 240px)" }}
+                >
+                  <CoverImage project={p} className="max-h-[240px]" />
                 </div>
-              </div>
-            </button>
-          ))}
+                <div className="mt-3">
+                  <div className="font-medium text-[color:var(--fg)] line-clamp-1">{p.title}</div>
+                  <div className="mt-1 flex flex-wrap gap-1.5">
+                    {p.stack.slice(0, 4).map((s) => (
+                      <span key={s} className="chip pastel-chip text-[11px]">
+                        {s}
+                      </span>
+                    ))}
+                    {p.stack.length > 4 && (
+                      <span className="chip pastel-chip text-[11px]">+{p.stack.length - 4}</span>
+                    )}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      </motion.div>
     </Section>
   );
 }

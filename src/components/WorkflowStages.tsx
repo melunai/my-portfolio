@@ -1,37 +1,51 @@
-// src/components/WorkflowStages.tsx
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import Section from "./Section";
 import SectionLead from "./SectionLead";
+import { useIOInView } from "./useIOInView";
 
 const STAGES = [
-  { title: "Знакомство",  text: "Короткий созвон/переписка: цели, стиль, ожидания." },
+  { title: "Знакомство", text: "Короткий созвон/переписка: цели, стиль, ожидания." },
   { title: "Брифирование", text: "Собираю вводные, структуру и визуальное направление." },
-  { title: "Правки",       text: "Итеративно улучшаем, быстро согласовываем детали." },
-  { title: "Итог",         text: "Финализирую, передаю материалы и помогаю с запуском." },
+  { title: "Правки", text: "Итеративно улучшаем, быстро согласовываем детали." },
+  { title: "Итог", text: "Финализирую, передаю материалы и помогаю с запуском." },
 ];
 
 export default function WorkflowStages() {
+  const { ref, inView } = useIOInView<HTMLDivElement>({ once: true });
+  const variants = {
+    hide: { opacity: 0, y: 16 },
+    show: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, delay: i * 0.08 },
+    }),
+  };
+
   return (
     <Section id="workflow" title="Этапы работы">
-      <SectionLead>Минимальный шум, максимум прозрачности — от старта до релиза.</SectionLead>
+      <SectionLead>
+        Минимальный шум, максимум прозрачности — от старта до релиза.
+      </SectionLead>
 
-      <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-8 mt-12">
+      <div
+        ref={ref}
+        className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-8 mt-12"
+      >
         {STAGES.map((stage, i) => (
           <motion.div
             key={stage.title}
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.35 }}
-            transition={{ duration: 0.5, delay: i * 0.08 }}
+            custom={i}
+            initial="hide"
+            animate={inView ? "show" : "hide"}
+            variants={variants}
             className="relative flex flex-col items-center text-center"
           >
-            {/* вертикально растянутый овал со «живым» градиентом */}
             <div
               className="
                 relative flex flex-col justify-center items-center
                 w-56 h-72 md:w-60 md:h-80
-                rounded-[999px]  /* эллипс */
+                rounded-[999px]
                 border border-[var(--chip-border)]
                 bg-[var(--glass-bg)] backdrop-blur-xl
                 shadow-[0_10px_34px_-12px_var(--decor-glow)]
@@ -41,7 +55,6 @@ export default function WorkflowStages() {
                 overflow-hidden
               "
             >
-              {/* анимированный внутренний градиент */}
               <span
                 aria-hidden
                 className="absolute inset-0 -z-10 rounded-[999px] opacity-70"
@@ -51,7 +64,6 @@ export default function WorkflowStages() {
                     "radial-gradient(140% 200% at 85% 60%, color-mix(in oklab,var(--accent), white 14%) 0%, transparent 50%)",
                   backgroundSize: "200% 200%, 220% 220%",
                   animation: "wfGradientShift 14s ease-in-out infinite",
-                  // лёгкий парящий эффект
                   filter: "blur(2px)",
                 }}
               />
@@ -64,7 +76,6 @@ export default function WorkflowStages() {
               </p>
             </div>
 
-            {/* стрелка между этапами (горизонтально на десктопе, вертикально на мобиле) */}
             {i < STAGES.length - 1 && (
               <>
                 <ArrowRight
@@ -84,7 +95,6 @@ export default function WorkflowStages() {
         ))}
       </div>
 
-      {/* локальная анимация градиента (медленное «дыхание») */}
       <style>{`
         @keyframes wfGradientShift {
           0%   { background-position: 0% 0%, 100% 100%; transform: translateY(0) }

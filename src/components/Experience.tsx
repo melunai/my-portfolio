@@ -44,14 +44,29 @@ export default function Experience() {
     []
   );
 
+  const LEAD_DELAY = 0.35;
+  const BODY_DELAY = 0.70;
+
   return (
     <Section id="experience" title="Опыт">
       <div className="relative">
-        <div className="flex items-start justify-between gap-4">
+        {/* 2) Подзаголовок после заголовка секции */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.5, delay: LEAD_DELAY, ease: [0.22, 1, 0.36, 1] }}
+          className="flex items-start justify-between gap-4"
+        >
           <SectionLead>Где я приносил пользу и за что отвечал.</SectionLead>
-        </div>
+        </motion.div>
 
-        <div
+        {/* 3) Основная лента — после подзаголовка */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.35 }}
+          transition={{ duration: 0.55, delay: BODY_DELAY, ease: [0.22, 1, 0.36, 1] }}
           ref={listRef}
           className="relative mt-8 grid grid-cols-[16px,1fr] gap-4 justify-center"
         >
@@ -261,7 +276,7 @@ export default function Experience() {
               })}
             </AnimatePresence>
           </div>
-        </div>
+        </motion.div>
 
         <style>{`
           @keyframes breath {

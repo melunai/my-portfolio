@@ -5,6 +5,7 @@ import Section from "./Section";
 import GlassCard from "./GlassCard";
 import SectionLead from "./SectionLead";
 import { TESTIMONIALS } from "../data";
+import { useIOInView } from "./useIOInView";
 
 const SWIPE_THRESHOLD = 60; // px
 
@@ -68,17 +69,36 @@ export default function Testimonials() {
     }),
   };
 
+  // ✨ IO-въезд всей секции отзывов
+  const { ref: ioRef, inView } = useIOInView<HTMLDivElement>({
+    once: true,
+    rootMargin: "-25% 0% -40% 0%",
+  });
+  const sectionVar = {
+    hide: { opacity: 0, y: 14, filter: "blur(4px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as any },
+    },
+  };
+
   return (
     <Section id="testimonials" title="Отзывы">
       <SectionLead>Что говорят коллеги и партнёры.</SectionLead>
 
-      <div
+      <motion.div
+        ref={ioRef}
+        initial="hide"
+        animate={inView ? "show" : "hide"}
+        variants={sectionVar}
         className="relative mx-auto max-w-2xl"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
         {/* Кнопки */}
-        <button
+        <motion.button
           type="button"
           aria-label="Предыдущий отзыв"
           onClick={() => go(-1)}
@@ -86,10 +106,13 @@ export default function Testimonials() {
                      rounded-xl border px-3 py-2 text-sm
                      bg-[var(--chip-bg)] border-[var(--chip-border)]
                      hover:bg-[var(--chip-hover)]"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 6 }}
+          transition={{ delay: 0.08, duration: 0.25 }}
         >
           ←
-        </button>
-        <button
+        </motion.button>
+        <motion.button
           type="button"
           aria-label="Следующий отзыв"
           onClick={() => go(1)}
@@ -97,9 +120,12 @@ export default function Testimonials() {
                      rounded-xl border px-3 py-2 text-sm
                      bg-[var(--chip-bg)] border-[var(--chip-border)]
                      hover:bg-[var(--chip-hover)]"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 6 }}
+          transition={{ delay: 0.12, duration: 0.25 }}
         >
           →
-        </button>
+        </motion.button>
 
         {/* Контейнер с отзывом — плавная адаптация высоты */}
         <motion.div
@@ -161,7 +187,7 @@ export default function Testimonials() {
         <p className="sr-only" aria-live="polite">
           Отзыв {index + 1} из {count}: {current.name}
         </p>
-      </div>
+      </motion.div>
     </Section>
   );
 }

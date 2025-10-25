@@ -1,28 +1,49 @@
 import { motion } from "framer-motion";
 import { useRef } from "react";
 import type { Project } from "../data";
+import { useIOInView } from "./useIOInView";
 
 type Props = { project: Project; onOpen?: (p: Project) => void };
 
 export default function ProjectCard({ project: p, onOpen }: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
 
+  // hover-tilt
   const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = ref.current!;
     const rect = el.getBoundingClientRect();
     const px = (e.clientX - rect.left) / rect.width - 0.5;
     const py = (e.clientY - rect.top) / rect.height - 0.5;
-    el.style.transform = `perspective(1000px) rotateX(${(-py * 3).toFixed(2)}deg) rotateY(${(px * 5).toFixed(2)}deg)`;
+    el.style.transform = `perspective(1000px) rotateX(${(-py * 3).toFixed(
+      2
+    )}deg) rotateY(${(px * 5).toFixed(2)}deg)`;
   };
-  const reset = () => { if (ref.current) ref.current.style.transform = ""; };
+  const reset = () => {
+    if (ref.current) ref.current.style.transform = "";
+  };
   const open = () => onOpen?.(p);
+
+  // IO-въезд
+  const { ref: ioRef, inView } = useIOInView<HTMLDivElement>({
+    once: true,
+    rootMargin: "-20% 0% -40% 0%",
+  });
+  const variants = {
+    hide: { opacity: 0, y: 14, scale: 0.98 },
+    show: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as any },
+    },
+  };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.3 }}
-      transition={{ duration: 0.45 }}
+      ref={ioRef}
+      initial="hide"
+      animate={inView ? "show" : "hide"}
+      variants={variants}
     >
       <div
         ref={ref}
@@ -31,7 +52,9 @@ export default function ProjectCard({ project: p, onOpen }: Props) {
         onClick={open}
         role="button"
         tabIndex={0}
-        onKeyDown={(e) => ((e.key === "Enter" || e.key === " ") && (e.preventDefault(), open()))}
+        onKeyDown={(e) =>
+          (e.key === "Enter" || e.key === " ") && (e.preventDefault(), open())
+        }
         aria-label={`Открыть проект ${p.title}`}
         className="
           group relative cursor-pointer overflow-hidden rounded-3xl
@@ -53,7 +76,7 @@ export default function ProjectCard({ project: p, onOpen }: Props) {
           style={{
             background: "var(--chip-bg, rgba(255,255,255,.6))",
             color: "var(--accent-600, #db2777)",
-            border: "1px solid var(--chip-border, rgba(244,114,182,.22))"
+            border: "1px solid var(--chip-border, rgba(244,114,182,.22))",
           }}
         >
           ✿ project
@@ -70,19 +93,28 @@ export default function ProjectCard({ project: p, onOpen }: Props) {
             />
           </div>
           <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-            <div className="absolute inset-0"
-                 style={{ background: "linear-gradient(to top, rgba(0,0,0,.15), transparent 45%)" }} />
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(to top, rgba(0,0,0,.15), transparent 45%)",
+              }}
+            />
           </div>
         </div>
 
         <div className="p-5 theme-colors">
-          <h3 className="text-base sm:text-lg font-semibold tracking-tight">{p.title}</h3>
+          <h3 className="text-base sm:text-lg font-semibold tracking-tight">
+            {p.title}
+          </h3>
           <p className="mt-2 text-sm leading-relaxed">{p.description}</p>
 
           {!!p.stack?.length && (
             <div className="mt-3 flex flex-wrap gap-1.5">
               {p.stack.map((s) => (
-                <span key={s} className="chip">{s}</span>
+                <span key={s} className="chip">
+                  {s}
+                </span>
               ))}
             </div>
           )}
