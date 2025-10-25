@@ -1,9 +1,10 @@
-import React, { useMemo, useState } from "react";
+import React, { useState, useMemo } from "react";
+import emailjs from "@emailjs/browser";
 
-type Props = {
-  targetEmail?: string;     // адрес получателя
-  defaultTelegram?: string; // плейсхолдер
-};
+const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID as string;
+const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID as string;
+const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string;
+const TARGET_EMAIL = import.meta.env.VITE_TARGET_EMAIL as string;
 
 type FieldErrors = {
   email?: string;
@@ -13,12 +14,9 @@ type FieldErrors = {
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-const TELEGRAM_RE = /^@?[a-zA-Z0-9_]{5,}$/; // допускаем @, минимум 5 символов
+const TELEGRAM_RE = /^@?[a-zA-Z0-9_]{5,}$/;
 
-export default function ContactForm({
-  targetEmail = "seon.takago@gmail.com",
-  defaultTelegram = "@melunai",
-}: Props) {
+export default function ContactForm() {
   const [email, setEmail] = useState("");
   const [telegram, setTelegram] = useState("");
   const [message, setMessage] = useState("");
@@ -37,163 +35,182 @@ export default function ContactForm({
 
   function validate(): boolean {
     const next: FieldErrors = {};
-
     if (!email && !telegram) {
       next.email = "Укажите email или Telegram";
       next.telegram = "Укажите email или Telegram";
     }
     if (email && !EMAIL_RE.test(email)) next.email = "Некорректный email";
     if (telegram && !TELEGRAM_RE.test(telegram))
-      next.telegram = "Некорректный @ник (мин. 5 символов, латиница/цифры/_)";
-
+      next.telegram = "Некорректный @ник";
     const m = message.trim();
-    if (m.length < 20) next.message = "Опишите задачу подробнее (минимум 20 символов)";
-    else if (m.length > 2000) next.message = "Слишком длинное описание (максимум 2000 символов)";
-
-    if (!consent) next.consent = "Необходимо согласие на обработку данных";
-
+    if (m.length < 20) next.message = "Минимум 20 символов";
+    else if (m.length > 2000) next.message = "Максимум 2000 символов";
+    if (!consent) next.consent = "Нужно согласие на обработку данных";
     setErrors(next);
     return Object.keys(next).length === 0;
-  }
-
-  function buildMailto(): string {
-    const subject = "Заявка с портфолио (melunai)";
-    const lines = [
-      "Новая заявка:",
-      email ? `Email: ${email}` : null,
-      telegram ? `Telegram: ${telegram.startsWith("@") ? telegram : "@" + telegram}` : null,
-      "",
-      "Описание задачи:",
-      message.trim(),
-      "",
-      "Источник: сайт-портфолио",
-    ].filter(Boolean) as string[];
-
-    const body = encodeURIComponent(lines.join("\n"));
-    return `mailto:${encodeURIComponent(targetEmail)}?subject=${encodeURIComponent(subject)}&body=${body}`;
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSent(null);
-
     if (!validate()) return;
+    setSubmitting(true);
 
     try {
-      setSubmitting(true);
-
-      // Отправляем через почтовый клиент
-      const href = buildMailto();
-      window.location.href = href;
-
-      // Фолбэк: копируем данные в буфер
-      try {
-        await navigator.clipboard.writeText(
-          `Email: ${email || "-"}\nTelegram: ${
-            telegram ? (telegram.startsWith("@") ? telegram : "@" + telegram) : "-"
-          }\n\nОписание:\n${message.trim()}`
-        );
-        setSent("ok");
-      } catch {
-        setSent("ok");
-      }
-    } catch {
+      await emailjs.send(
+        SERVICE_ID,
+        TEMPLATE_ID,
+        {
+          to_email: TARGET_EMAIL,
+          from_email: email || "(не указан)",
+          from_telegram: telegram || "(не указан)",
+          message,
+        },
+        { publicKey: PUBLIC_KEY }
+      );
+      setSent("ok");
+      setEmail("");
+      setTelegram("");
+      setMessage("");
+      setConsent(false);
+      setErrors({});
+    } catch (err) {
+      console.error(err);
       setSent("fail");
     } finally {
-      setTimeout(() => setSubmitting(false), 1200);
+      setSubmitting(false);
     }
   }
+
+  const fieldBase =
+    "peer w-full rounded-xl px-3 py-3 outline-none transition border bg-[var(--card)] text-[color:var(--fg)] border-[var(--border)] focus:shadow-[0_0_0_3px_color-mix(in_oklab,var(--ring),transparent_70%)] focus:border-[var(--ring)]";
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-2xl w-full bg-[#0f1420] border border-[#1b2330] rounded-2xl p-6 shadow"
       noValidate
+      className="max-w-2xl w-full relative rounded-2xl p-6 shadow"
+      style={{
+        background:
+          "linear-gradient(135deg, color-mix(in oklab, var(--accent) 22%, transparent), color-mix(in oklab, var(--bg) 86%, var(--accent) 4%))",
+        border: "1px solid color-mix(in oklab, var(--border), var(--accent) 12%)",
+        boxShadow:
+          "0 8px 28px -16px color-mix(in oklab, var(--glow), transparent 40%), inset 0 0 0 1px color-mix(in oklab, var(--chip-border), transparent 50%)",
+      }}
     >
-      {/* honeypot от ботов */}
-      <input type="text" name="company" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-2xl"
+        style={{
+          padding: 1,
+          background:
+            "conic-gradient(from var(--angle), var(--accent), color-mix(in oklab, var(--accent), white 30%), var(--accent))",
+          WebkitMask:
+            "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+          WebkitMaskComposite: "xor",
+          maskComposite: "exclude",
+          animation: "gradient-flow 9s linear infinite",
+        }}
+      />
 
-      <div className="grid gap-5">
+      <div className="grid gap-5 relative">
         <div className="grid md:grid-cols-2 gap-5">
-          <div>
-            <label className="block text-sm text-slate-300 mb-1">Email</label>
+          {/* Email */}
+          <div className="relative">
             <input
               type="email"
-              inputMode="email"
-              placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={`w-full rounded-xl bg-[#0b0f19] border px-3 py-2 outline-none focus:ring-2 ${
-                errors.email ? "border-red-500 focus:ring-red-500" : "border-[#2b384c] focus:ring-[#66afff]"
-              }`}
-              aria-invalid={Boolean(errors.email)}
-              aria-describedby={errors.email ? "err-email" : undefined}
+              className={`${fieldBase} ${errors.email ? "border-red-500" : ""}`}
+              placeholder=" "
             />
-            {errors.email && <p id="err-email" className="mt-1 text-xs text-red-400">{errors.email}</p>}
+            <label
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm opacity-70 transition-all
+                         peer-focus:top-1 peer-focus:text-xs peer-focus:opacity-100
+                         peer-not-placeholder-shown:top-1 peer-not-placeholder-shown:text-xs"
+            >
+              Email
+            </label>
+            {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email}</p>}
           </div>
 
-          <div>
-            <label className="block text-sm text-slate-300 mb-1">Telegram</label>
+          {/* Telegram */}
+          <div className="relative">
             <input
               type="text"
-              inputMode="text"
-              placeholder={defaultTelegram}
               value={telegram}
               onChange={(e) => setTelegram(e.target.value)}
-              className={`w-full rounded-xl bg-[#0b0f19] border px-3 py-2 outline-none focus:ring-2 ${
-                errors.telegram ? "border-red-500 focus:ring-red-500" : "border-[#2b384c] focus:ring-[#66afff]"
-              }`}
-              aria-invalid={Boolean(errors.telegram)}
-              aria-describedby={errors.telegram ? "err-telegram" : undefined}
+              className={`${fieldBase} ${errors.telegram ? "border-red-500" : ""}`}
+              placeholder=" "
             />
-            {errors.telegram && <p id="err-telegram" className="mt-1 text-xs text-red-400">{errors.telegram}</p>}
+            <label
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm opacity-70 transition-all
+                         peer-focus:top-1 peer-focus:text-xs peer-focus:opacity-100
+                         peer-not-placeholder-shown:top-1 peer-not-placeholder-shown:text-xs"
+            >
+              Telegram
+            </label>
+            {errors.telegram && <p className="mt-1 text-xs text-red-400">{errors.telegram}</p>}
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm text-slate-300 mb-1">Описание задачи</label>
+        {/* Message */}
+        <div className="relative">
           <textarea
-            placeholder="Кратко опишите бизнес-цель, сроки, бюджетный коридор и ожидаемый результат. (мин. 20 символов)"
+            rows={6}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            rows={6}
-            className={`w-full rounded-xl bg-[#0b0f19] border px-3 py-2 outline-none focus:ring-2 ${
-              errors.message ? "border-red-500 focus:ring-red-500" : "border-[#2b384c] focus:ring-[#66afff]"
-            }`}
-            aria-invalid={Boolean(errors.message)}
-            aria-describedby={errors.message ? "err-message" : undefined}
+            className={`${fieldBase} resize-y min-h-[140px] ${errors.message ? "border-red-500" : ""}`}
+            placeholder=" "
           />
-          <div className="mt-1 flex items-center justify-between text-xs text-slate-400">
+          <label
+            className="pointer-events-none absolute left-3 top-3 text-sm opacity-70 transition-all
+                       peer-focus:top-2 peer-focus:text-xs peer-focus:opacity-100
+                       peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:text-xs"
+          >
+            Опишите задачу
+          </label>
+          <div className="mt-1 flex items-center justify-between text-xs opacity-80">
             <span>{message.trim().length}/2000</span>
-            {errors.message && <p id="err-message" className="text-red-400">{errors.message}</p>}
+            {errors.message && <p className="text-red-400">{errors.message}</p>}
           </div>
         </div>
 
+        {/* Consent */}
         <div className="flex items-start gap-2">
-          <input id="consent" type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1" />
-          <label htmlFor="consent" className="text-sm text-slate-300">
-            Согласен на обработку персональных данных для ответа на заявку.
+          <input
+            id="consent"
+            type="checkbox"
+            checked={consent}
+            onChange={(e) => setConsent(e.target.checked)}
+            className="mt-1"
+          />
+          <label htmlFor="consent" className="text-sm opacity-90">
+            Согласен на обработку персональных данных.
           </label>
         </div>
         {errors.consent && <p className="text-xs text-red-400">{errors.consent}</p>}
 
+        {/* Button */}
         <div className="flex items-center gap-3">
           <button
             type="submit"
             disabled={!canSubmit}
-            className={`btn btn-primary px-4 py-2 rounded-xl border ${canSubmit ? "cursor-pointer" : "opacity-60 cursor-not-allowed"}`}
-            aria-busy={submitting}
+            className={`btn btn-primary px-4 py-2 rounded-xl ${canSubmit ? "" : "opacity-60 cursor-not-allowed"}`}
           >
-            {submitting ? "Отправка…" : "Отправить заявку"}
+            {submitting ? "Отправка…" : "Отправить"}
           </button>
-
-          {sent === "ok" && <span className="text-sm text-green-400">Готово: письмо сформировано. Текст заявки скопирован в буфер.</span>}
-          {sent === "fail" && <span className="text-sm text-red-400">Не удалось открыть почтовый клиент. Напишите на {targetEmail} вручную.</span>}
+          {sent === "ok" && (
+            <span className="text-sm text-[color:var(--accent)]">
+              ✨ Заявка отправлена!
+            </span>
+          )}
+          {sent === "fail" && (
+            <span className="text-sm text-red-400">
+              Ошибка отправки. Попробуйте позже.
+            </span>
+          )}
         </div>
-
-        <p className="text-xs text-slate-400">
-          * Можно указать только email или только Telegram — достаточно одного способа связи.
-        </p>
       </div>
     </form>
   );

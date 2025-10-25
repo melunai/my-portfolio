@@ -11,9 +11,9 @@ import ProjectModal from "./ProjectModal";
  * Обложки показываются аккуратно (object-contain) + скелетон, портреты и альбомные выглядят красиво.
  */
 
-const GAP_PX = 20;
-const SIDE_SCALE = 0.86;
-const SIDE_FADE = 0.55;
+const GAP_PX = 18;
+const SIDE_SCALE = 1;
+const SIDE_FADE = 1;
 
 export default function Projects() {
   const projects = DATA.projects;
@@ -23,7 +23,7 @@ export default function Projects() {
   // фильтр для общего списка
   const [filter, setFilter] = useState<string | null>(null);
 
-  const slideWidthPct = useResponsiveSlideWidth();
+  const slideWidthPct = 100;
 
   const { tags, counts } = useMemo(() => {
     const counts = new Map<string, number>();
@@ -352,22 +352,4 @@ function SlideCard({
       </div>
     </motion.article>
   );
-}
-
-/* ===== адаптивная ширина карточки ===== */
-function useResponsiveSlideWidth() {
-  const [pct, setPct] = useState(72);
-  useEffect(() => {
-    const update = () => {
-      const w = window.innerWidth;
-      if (w < 420) setPct(90);
-      else if (w < 640) setPct(86);
-      else if (w < 920) setPct(80);
-      else setPct(72);
-    };
-    update();
-    window.addEventListener("resize", update, { passive: true });
-    return () => window.removeEventListener("resize", update);
-  }, []);
-  return pct;
 }

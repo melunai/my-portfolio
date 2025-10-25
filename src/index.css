@@ -509,29 +509,29 @@ body {
   transition: none;
 }
 
-/* === Подзаголовок в стиле Masvol === */
+/* === Подзаголовок SectionLead с адаптацией под светлую и тёмную темы === */
 .glass-lead {
   font-family: "Novelist", "Inter", sans-serif;
   font-weight: 300;
   letter-spacing: 0.02em;
-  transform: scaleY(1.08);
+  line-height: 1.6;
   text-align: center;
+  transform: scaleY(1.06);
 
-  /* 🌫 мягкий стеклянный fade низа */
-  mask-image: linear-gradient(to bottom, black 92%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 92%, transparent 100%);
+  /* 🌫 Мягкий fade нижней части букв */
+  mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
 
-  /* 🎨 градиентный тон текста */
+  /* 🎨 Общий градиент для текста — автоматически реагирует на тему */
   background: linear-gradient(
     to bottom,
-    color-mix(in oklab, var(--text-muted), white 6%) 0%,
-    color-mix(in oklab, var(--text-muted), transparent 85%) 100%
+    color-mix(in oklab, var(--fg), white 8%) 0%,
+    color-mix(in oklab, var(--fg), transparent 85%) 100%
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 
-  /* ☁️ лёгкое сияние, очень мягкое */
-  filter: drop-shadow(0 2px 4px color-mix(in oklab, var(--accent), transparent 92%));
+  /* ☁️ без glow, просто мягкий контраст */
+  filter: none;
+  transition: background 0.4s ease, color 0.4s ease;
 }
-
-
