@@ -142,11 +142,11 @@ export default function Hero() {
           </div>
 
           <a
-            href={`mailto:${DATA.email}`}
+            href="#contact"
             className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl w-full
-             bg-[var(--accent)] text-white hover:bg-[color-mix(in_oklab,var(--accent),white_15%)]
-             dark:text-white dark:hover:bg-[color-mix(in_oklab,var(--accent),white_10%)]
-             px-5 py-3 text-sm font-medium transition-colors"
+   bg-[var(--accent)] text-white hover:bg-[color-mix(in_oklab,var(--accent),white_15%)]
+   dark:text-white dark:hover:bg-[color-mix(in_oklab,var(--accent),white_10%)]
+   px-5 py-3 text-sm font-medium transition-colors"
           >
             <Mail className="size-4" /> Написать мне
           </a>

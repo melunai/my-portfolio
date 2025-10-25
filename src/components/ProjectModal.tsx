@@ -1,3 +1,4 @@
+// src/components/ProjectModal.tsx
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import type { Project } from "../data";
 
@@ -6,14 +7,12 @@ type Props = {
   onClose: () => void;
 };
 
-type Orientation = "portrait" | "landscape" | "square";
 type FillMode = "contain" | "cover";
 
-/* ---------- ВСПОМОГАТЕЛЬНОЕ: EXIF ORIENTATION ---------- */
+/* ---------- EXIF ORIENTATION (для корректного поворота JPEG) ---------- */
 /** Быстрый парсер только Orientation (0x0112) из EXIF у JPEG. Возвращает 1,3,6,8 или null. */
 async function getExifOrientation(url: string): Promise<1 | 3 | 6 | 8 | null> {
   try {
-    // Забираем только первые ~128KB — почти всегда хватит для сегмента APP1/EXIF
     const res = await fetch(url, { mode: "cors" });
     const blob = await res.blob();
     const head = await blob.slice(0, 128 * 1024).arrayBuffer();
@@ -30,7 +29,6 @@ async function getExifOrientation(url: string): Promise<1 | 3 | 6 | 8 | null> {
       const size = view.getUint16(offset, false);
       if (size < 2) break;
       if (marker === 0xffe1 /* APP1 */) {
-        // Проверяем EXIF сигнатуру
         const exifStart = offset + 2;
         const exifHeader = new Uint8Array(head, exifStart, 6);
         const isExif =
@@ -47,7 +45,6 @@ async function getExifOrientation(url: string): Promise<1 | 3 | 6 | 8 | null> {
         const get16 = (off: number) => view.getUint16(off, little);
         const get32 = (off: number) => view.getUint32(off, little);
 
-        // Смещение до IFD0
         const ifd0 = tiffOffset + get32(tiffOffset + 4);
         const entries = get16(ifd0);
         for (let i = 0; i < entries; i++) {
@@ -64,9 +61,7 @@ async function getExifOrientation(url: string): Promise<1 | 3 | 6 | 8 | null> {
         offset += size;
       }
     }
-  } catch {
-    /* ignore — не критично */
-  }
+  } catch {}
   return null;
 }
 
@@ -109,7 +104,6 @@ function LazyImg(props: React.ImgHTMLAttributes<HTMLImageElement> & { realSrc: s
       );
       io.observe(el);
     } else {
-      // Fallback: сразу грузим
       setSrc(realSrc);
     }
 
@@ -134,8 +128,7 @@ export default function ProjectModal({ project, onClose }: Props) {
 
   const [idx, setIdx] = useState(0);
   const [lightbox, setLightbox] = useState(false);
-  const [orientation, setOrientation] = useState<Orientation>("landscape");
-  const [fillMode, setFillMode] = useState<FillMode>("contain"); // ⟵ «безрамочный» режим: cover
+  const [fillMode, setFillMode] = useState<FillMode>("contain"); // «безрамочный» режим: cover
   const [exifMap, setExifMap] = useState<Record<string, 1 | 3 | 6 | 8 | null>>({});
 
   // Сброс при смене проекта
@@ -174,7 +167,7 @@ export default function ProjectModal({ project, onClose }: Props) {
     startX.current = null;
   };
 
-  // Предзагрузка соседних кадров (после появления текущего)
+  // Предзагрузка соседних кадров
   useEffect(() => {
     if (images.length <= 1) return;
     const preload = (src: string) => {
@@ -187,24 +180,7 @@ export default function ProjectModal({ project, onClose }: Props) {
     preload(images[(idx - 1 + images.length) % images.length]!);
   }, [idx, images]);
 
-  // Вычисление ориентации кадра (учитывая EXIF — для 6/8 меняем соотношение)
-  const handleImgLoad = useCallback(
-    (img: HTMLImageElement | null, src: string) => {
-      if (!img) return;
-      const { naturalWidth: w, naturalHeight: h } = img;
-      if (!w || !h) return;
-      const exif = exifMap[src] ?? null;
-      const w2 = exif === 6 || exif === 8 ? h : w;
-      const h2 = exif === 6 || exif === 8 ? w : h;
-      const ratio = w2 / h2;
-      if (Math.abs(ratio - 1) < 0.06) setOrientation("square");
-      else if (ratio < 1) setOrientation("portrait");
-      else setOrientation("landscape");
-    },
-    [exifMap]
-  );
-
-  // При первом показе каждого src — читаем EXIF и кэшируем
+  // При показе текущего src — читаем EXIF (чтобы правильно повернуть JPEG)
   useEffect(() => {
     const src = images[idx];
     if (!src) return;
@@ -220,14 +196,6 @@ export default function ProjectModal({ project, onClose }: Props) {
   }, [images, idx, exifMap]);
 
   if (!open || !project) return null;
-
-  // Высота превью по ориентации кадра
-  const galleryHeightClass =
-    orientation === "portrait"
-      ? "h-[68vh] md:h-[78vh]"
-      : orientation === "square"
-      ? "h-[60vh] md:h-[72vh]"
-      : "h-[52vh] md:h-[70vh]";
 
   const currSrc = images[idx];
   const exif = exifMap[currSrc] ?? null;
@@ -245,7 +213,8 @@ export default function ProjectModal({ project, onClose }: Props) {
         <div
           role="dialog"
           aria-modal="true"
-          className="absolute left-1/2 top-1/2 w-[95vw] max-w-5xl -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-[var(--elevated)] border border-[var(--border)] shadow-xl overflow-hidden"
+          className="absolute left-1/2 top-1/2 w-[95vw] max-w-5xl -translate-x-1/2 -translate-y-1/2
+                     rounded-2xl bg-[var(--elevated)] border border-[var(--border)] shadow-xl overflow-hidden"
         >
           {/* Header */}
           <div className="flex items-center justify-between gap-3 px-5 py-3 border-b border-[var(--border)]">
@@ -295,11 +264,10 @@ export default function ProjectModal({ project, onClose }: Props) {
 
           {/* Content */}
           <div className="grid md:grid-cols-3 gap-0">
-            {/* Галерея */}
+            {/* Галерея с фиксированной высотой */}
             <div className="md:col-span-2 relative bg-[var(--card)]">
-              {/* Центрируем, вписываем; высота зависит от ориентации + режим заполнения */}
               <div
-                className={`relative grid place-items-center ${galleryHeightClass} select-none`}
+                className="relative grid place-items-center h-[70vh] select-none"
                 onTouchStart={onTouchStart}
                 onTouchEnd={onTouchEnd}
               >
@@ -312,14 +280,8 @@ export default function ProjectModal({ project, onClose }: Props) {
                       "max-h-full max-w-full w-auto h-auto transition-transform duration-300 cursor-zoom-in",
                       fillMode === "cover" ? "w-full h-full object-cover" : "object-contain",
                     ].join(" ")}
-                    style={{
-                      transform: rotation === "none" ? undefined : rotation,
-                      // Когда вращаем 90°, object-fit ведёт себя нормально, но
-                      // лёгкий overscroll фильтром сглаживает «ступеньку»:
-                      willChange: "transform",
-                    }}
+                    style={{ transform: rotation }}
                     onClick={() => setLightbox(true)}
-                    onLoad={(e) => handleImgLoad(e.currentTarget, currSrc)}
                     decoding="async"
                     draggable={false}
                   />

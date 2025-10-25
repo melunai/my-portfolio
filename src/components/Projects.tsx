@@ -1,3 +1,4 @@
+// src/components/Projects.tsx
 import { useEffect, useMemo, useRef, useState, useLayoutEffect } from "react";
 import { motion } from "framer-motion";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
@@ -17,13 +18,12 @@ export default function Projects() {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [filter, setFilter] = useState<string | null>(null);
 
+  // ширина активной карточки в слайдере
   const slideWidthPct = 70;
 
   const { tags, counts } = useMemo(() => {
     const counts = new Map<string, number>();
-    projects.forEach((p) =>
-      p.stack.forEach((t) => counts.set(t, (counts.get(t) ?? 0) + 1))
-    );
+    projects.forEach((p) => p.stack.forEach((t) => counts.set(t, (counts.get(t) ?? 0) + 1)));
     const tags = Array.from(counts.keys()).sort((a, b) => a.localeCompare(b));
     return { tags, counts };
   }, [projects]);
@@ -31,10 +31,10 @@ export default function Projects() {
   const prev = () => setActiveIdx((i) => (i - 1 + projects.length) % projects.length);
   const next = () => setActiveIdx((i) => (i + 1) % projects.length);
 
+  // вычисляем px ширину карточки в вьюпорте слайдера
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [cardPx, setCardPx] = useState(0);
 
-  // вычисляем ширину карточки
   useLayoutEffect(() => {
     const vp = viewportRef.current;
     if (!vp) return;
@@ -45,7 +45,7 @@ export default function Projects() {
     return () => ro.disconnect();
   }, [slideWidthPct]);
 
-  // центрируем карточку при переключении
+  // центрируем активную
   useEffect(() => {
     const vp = viewportRef.current;
     if (!vp || !cardPx) return;
@@ -59,13 +59,13 @@ export default function Projects() {
     [projects, filter]
   );
 
-  // ====== общие задержки: заголовок (в Section), затем lead, затем контент ======
+  // ====== анимационные задержки ======
   const LEAD_DELAY = 0.35;
   const BODY_DELAY = 0.70;
 
   return (
     <Section id="projects" title="Проекты">
-      {/* 2) Подзаголовок — после заголовка секции */}
+      {/* Подзаголовок */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -76,7 +76,7 @@ export default function Projects() {
         <SectionLead>Участие в проектах и вклад в них</SectionLead>
       </motion.div>
 
-      {/* 3) Основная часть — после подзаголовка */}
+      {/* Основная часть */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -148,8 +148,9 @@ export default function Projects() {
         {/* Модалка */}
         <ProjectModal project={activeProject} onClose={() => setActiveProject(null)} />
 
-        {/* ===== Минималистичный список снизу ===== */}
+        {/* ===== Мини-карточки снизу — выровненная сетка, без растягивания портретов ===== */}
         <div className="mt-10">
+          {/* Фильтры */}
           <div className="mb-4 flex flex-wrap gap-2">
             <button
               onClick={() => setFilter(null)}
@@ -173,30 +174,61 @@ export default function Projects() {
             })}
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Сетка мини-карточек */}
+          <div
+            className="
+              grid gap-4 sm:grid-cols-2 lg:grid-cols-3
+              [--mini-minh:260px] md:[--mini-minh:280px]
+            "
+          >
             {filtered.map((p) => (
               <button
                 key={`mini-${p.title}`}
                 onClick={() => setActiveProject(p)}
-                className="card text-left p-3 hover:shadow-md transition-shadow"
+                className="
+                  card text-left overflow-hidden transition-shadow hover:shadow-md
+                  rounded-2xl
+                "
+                style={{ minHeight: "var(--mini-minh)" }}
+                aria-label={`Открыть проект ${p.title}`}
               >
-                <div
-                  className="grid place-items-center bg-[var(--card)] rounded-lg overflow-hidden"
-                  style={{ height: "clamp(160px, 26vw, 240px)" }}
-                >
-                  <CoverImage project={p} className="max-h-[240px]" />
-                </div>
-                <div className="mt-3">
-                  <div className="font-medium text-[color:var(--fg)] line-clamp-1">{p.title}</div>
-                  <div className="mt-1 flex flex-wrap gap-1.5">
-                    {p.stack.slice(0, 4).map((s) => (
-                      <span key={s} className="chip pastel-chip text-[11px]">
-                        {s}
-                      </span>
-                    ))}
-                    {p.stack.length > 4 && (
-                      <span className="chip pastel-chip text-[11px]">+{p.stack.length - 4}</span>
-                    )}
+                {/* Вся карточка — флекс-колонка */}
+                <div className="h-full flex flex-col">
+                  {/* Обложка: фиксированное соотношение, изображение — абсолютное внутри */}
+                  <div className="relative overflow-hidden rounded-xl">
+                    <div className="relative aspect-[16/10] w-full bg-[var(--card)] overflow-hidden">
+                      <CoverImage project={p as ProjectWithFocus} mode="auto" />
+                    </div>
+
+                    {/* лёгкий градиент по низу для читаемости */}
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute inset-x-0 bottom-0 h-16"
+                      style={{
+                        background:
+                          "linear-gradient(0deg, color-mix(in oklab, var(--accent), black 12%) 0%, transparent 100%)",
+                        opacity: 0.12,
+                      }}
+                    />
+                  </div>
+
+                  {/* Текстовый блок — одинаковые отступы; стек прижат к низу */}
+                  <div className="flex flex-col grow p-4 md:p-5">
+                    <div className="font-medium text-[color:var(--fg)] line-clamp-1 text-base">
+                      {p.title}
+                    </div>
+                    <p className="mt-1 text-sm opacity-80 line-clamp-2">{p.description}</p>
+
+                    <div className="mt-auto pt-3 flex flex-wrap gap-1.5">
+                      {p.stack.slice(0, 6).map((s) => (
+                        <span key={s} className="chip pastel-chip text-[11px]">
+                          {s}
+                        </span>
+                      ))}
+                      {p.stack.length > 6 && (
+                        <span className="chip pastel-chip text-[11px]">+{p.stack.length - 6}</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </button>
@@ -208,35 +240,64 @@ export default function Projects() {
   );
 }
 
-/* ===== CoverImage ===== */
-function CoverImage({ project, className = "" }: { project: Project; className?: string }) {
+/* ===== Тип с необязательной фокус-точкой (если добавишь coverFocus в data.ts) ===== */
+type ProjectWithFocus = Project & { coverFocus?: [number, number] };
+
+/* ===== CoverImage — умная подгонка: портрет = contain, ландшафт = cover ===== */
+function CoverImage({
+  project,
+  className = "",
+  mode = "auto", // "auto" | "contain" | "cover"
+}: {
+  project: ProjectWithFocus;
+  className?: string;
+  mode?: "auto" | "contain" | "cover";
+}) {
   const cover = ((project as any).images?.[0] as string | undefined) ?? (project as any).image;
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [natural, setNatural] = useState<{ w: number; h: number } | null>(null);
 
-  if (!cover || failed)
+  // фокус-точка (опционально из data.ts), проценты [x, y]
+  const [fx, fy] = project.coverFocus ?? [50, 50];
+
+  if (!cover || failed) {
     return (
-      <div className="w-full h-full grid place-items-center text-xs opacity-60">Нет изображения</div>
+      <div className="absolute inset-0 grid place-items-center text-xs opacity-60">
+        Нет изображения
+      </div>
     );
+  }
+
+  const isPortrait = natural ? natural.h >= natural.w * 1.05 : false;
+  const effectiveFit = mode === "auto" ? (isPortrait ? "contain" : "cover") : mode;
 
   return (
-    <div className="relative w-full h-full">
+    <div className={`relative w-full h-full ${className}`}>
       {!loaded && <div className="absolute inset-0 skeleton-soft rounded-lg" aria-hidden />}
       <img
         src={cover}
         alt="Обложка проекта"
-        className={`max-w-full max-h-full w-auto h-auto object-contain block mx-auto ${className}`}
+        className="absolute inset-0 w-full h-full block"
+        style={{
+          objectFit: effectiveFit as any,
+          objectPosition: `${fx}% ${fy}%`,
+        }}
         loading="lazy"
         decoding="async"
         draggable={false}
-        onLoad={() => setLoaded(true)}
+        onLoad={(e) => {
+          const img = e.currentTarget;
+          setNatural({ w: img.naturalWidth, h: img.naturalHeight });
+          setLoaded(true);
+        }}
         onError={() => setFailed(true)}
       />
     </div>
   );
 }
 
-/* ===== SlideCard ===== */
+/* ===== SlideCard (верхний слайдер, тоже без растягивания портретов) ===== */
 function SlideCard({
   project,
   isActive,
@@ -278,11 +339,8 @@ function SlideCard({
         }}
       >
         <div className="w-full bg-[var(--card)]">
-          <div
-            className="grid place-items-center overflow-hidden"
-            style={{ height: "clamp(200px, 40vh, 320px)" }}
-          >
-            <CoverImage project={project} className="max-h-[320px]" />
+          <div className="relative overflow-hidden" style={{ height: "clamp(200px, 40vh, 320px)" }}>
+            <CoverImage project={project as ProjectWithFocus} mode="auto" />
           </div>
         </div>
 
