@@ -1,5 +1,5 @@
 // src/components/ProjectModal.tsx
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Project } from "../data";
 
 type Props = {
