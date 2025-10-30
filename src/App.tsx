@@ -31,7 +31,7 @@ function AppInner() {
   return (
     <div
       className={[
-        "min-h-dvh relative text-slate-800 dark:text-slate-100 live-container theme-colors",
+        "min-h-dvh relative text-slate-800 dark:text-slate-100 live-container theme-colors overflow-x-clip",
         // базовый фон остаётся, но при live он переопределится CSS-анимацией
         "bg-gradient-to-b from-rose-800/30 to-rose-100/90 dark:from-slate-950 dark:to-slate-950",
         live ? "is-live" : "",

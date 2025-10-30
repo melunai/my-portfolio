@@ -1,156 +1,78 @@
-import { useEffect, useRef } from "react";
-import { Mail, MapPin } from "lucide-react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import GlassCard from "./GlassCard";
-import Chip from "./Chip";
-import { DATA, skillMeta } from "../data";
+import { Mail, Wand2 } from "lucide-react";
+import { DATA } from "../data";
+import HeroScene from "./HeroScene";
 
 export default function Hero() {
-  // контейнер, на котором держим css-переменные --px/--py
-  const parallaxRef = useRef<HTMLDivElement | null>(null);
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
 
-  useEffect(() => {
-    const el = parallaxRef.current;
-    if (!el) return;
-
-    const onMove = (e: MouseEvent) => {
-      const r = el.getBoundingClientRect();
-      if (r.width === 0 || r.height === 0) return;
-      const px = (e.clientX - r.left) / r.width - 0.5;
-      const py = (e.clientY - r.top) / r.height - 0.5;
-      el.style.setProperty("--px", px.toFixed(3));
-      el.style.setProperty("--py", py.toFixed(3));
-    };
-
-    const onLeave = () => {
-      el.style.removeProperty("--px");
-      el.style.removeProperty("--py");
-    };
-
-    // слушаем глобально — эффект не ломается из-за перекрытий
-    window.addEventListener("mousemove", onMove, { passive: true });
-    window.addEventListener("mouseout", onLeave, { passive: true });
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseout", onLeave);
-    };
-  }, []);
+  const go = (id: string) =>
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 
   return (
-    <section id="home" className="pt-20 md:pt-28 pb-12">
-      <div className="grid md:grid-cols-3 gap-6 items-start">
-        {/* ==== Левая часть с описанием (параллакс) ==== */}
-        <motion.div
-          ref={parallaxRef}
-          initial={{ opacity: 0, y: 10 }}
+    <section
+      id="home"
+      onMouseMove={(e) => {
+        const x = (e.clientX / window.innerWidth - 0.5) * 2;
+        const y = (e.clientY / window.innerHeight - 0.5) * -2;
+        setMouse({ x, y });
+      }}
+      onMouseLeave={() => setMouse({ x: 0, y: 0 })}
+      className="relative flex flex-col justify-center items-center 
+                 min-h-[calc(100svh-var(--header-h,64px))] 
+                 pt-[var(--header-h,64px)] overflow-hidden"
+      style={{ position: "relative" }}
+    >
+      {/* ===== 3D фон ===== */}
+      <HeroScene mouse={mouse} />
+
+      {/* ===== контент ===== */}
+      <div className="relative z-10 text-center px-6 max-w-3xl">
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="md:col-span-2 relative"
+          className="relative font-extrabold leading-tight tracking-tight text-[clamp(2.2rem,6vw,4rem)]"
         >
-          <h1
-            className="text-3xl md:text-5xl font-semibold tracking-tight leading-tight will-change-transform"
-            style={{
-              transform:
-                "translate3d(calc(var(--px,0)*6px), calc(var(--py,0)*-4px), 0)",
-              color: "var(--fg)",
-            }}
+          Привет, я{" "}
+          <span className="bg-gradient-to-r from-[var(--accent)] via-pink-400 to-fuchsia-500 bg-clip-text text-transparent">
+            {DATA.name}
+          </span>
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="mt-4 text-[15px] md:text-[16px] max-w-xl mx-auto opacity-90 leading-relaxed"
+        >
+          {DATA.about ||
+            "Я создаю интерфейсы, которые чувствуют, двигаются и живут."}
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="mt-8 flex flex-wrap justify-center gap-3"
+        >
+          <button
+            onClick={() => go("contact")}
+            className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium text-white bg-[var(--accent)] hover:bg-[color-mix(in_oklab,var(--accent),white_10%)] shadow-md transition-colors"
           >
-            Привет, я {DATA.name} —<br />
-            <span style={{ color: "var(--muted)" }}>{DATA.role}</span>
-          </h1>
+            <Mail className="size-4" />
+            Написать
+          </button>
 
-          <p
-            className="mt-5 text-[15px] leading-relaxed max-w-2xl"
-            style={{
-              color: "color-mix(in oklab, var(--fg), var(--muted) 38%)",
-            }}
+          <button
+            onClick={() => go("projects")}
+            className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium border border-[var(--border)] hover:border-[var(--accent)] hover:shadow-[0_0_0_2px_var(--accent)] transition-all"
           >
-            {DATA.about}
-          </p>
-
-          {/* ==== Кнопки ==== */}
-          <div className="mt-7 flex flex-wrap gap-3">
-            <a
-              href="#projects"
-              className="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-medium text-white
-             bg-[var(--accent)] hover:bg-[color-mix(in_oklab,var(--accent),white_15%)]
-             shadow-md transition-colors"
-            >
-              Смотреть проекты
-            </a>
-
-            <a
-              href={DATA.cvUrl}
-              download
-              className="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm
-             bg-[var(--card)] text-[color:var(--fg)]
-             border border-[var(--border)]
-             hover:border-[color-mix(in_oklab,var(--border),var(--fg)_25%)]
-             hover:shadow-[0_0_0_2px_color-mix(in_oklab,var(--accent),transparent_85%)]
-             transition-all"
-            >
-              Резюме (PDF)
-            </a>
-          </div>
+            <Wand2 className="size-4" />
+            Проекты
+          </button>
         </motion.div>
-
-        {/* ==== Правая карточка ==== */}
-        <GlassCard className="p-6 flex flex-col justify-between md:h-full">
-          <div>
-            <h3 className="font-medium text-[color:var(--fg)] mb-3">
-              Быстрые факты
-            </h3>
-            <div className="text-sm opacity-80 flex items-center gap-2">
-              <MapPin className="size-4 opacity-70" /> {DATA.location}
-            </div>
-          </div>
-
-          {/* ==== Скиллы (первые 6), читаемы в дарке ==== */}
-          <div className="mt-5 flex flex-wrap gap-2">
-            {DATA.skills.slice(0, 6).map((s) => {
-              const meta = skillMeta[s.name] ?? {
-                emoji: "✨",
-                gradFrom: "from-rose-200",
-                gradTo: "to-pink-300",
-                tone: "var(--accent)",
-              };
-
-              return (
-                <Chip
-                  key={s.name}
-                  style={{ ["--tone" as any]: meta.tone || "var(--accent)" }}
-                  className={[
-                    "px-3 py-1 rounded-full text-sm font-medium transition-all",
-                    // Светлая — мягкий градиент
-                    "bg-gradient-to-br",
-                    meta.gradFrom,
-                    meta.gradTo,
-                    "text-[color:var(--fg)]",
-                    // Тёмная — стекло и контрастный текст, градиент выключаем
-                    "dark:bg-[var(--card)] dark:text-[color:var(--fg)] dark:border dark:border-[var(--chip-border)]",
-                    "dark:from-transparent dark:to-transparent",
-                    // Контур и hover glow
-                    "ring-1 ring-black/5 dark:ring-white/10 shadow-sm",
-                    "hover:shadow-[0_0_0_3px_var(--tone)] hover:border-[color:var(--tone)]",
-                  ].join(" ")}
-                >
-                  <span className="mr-1">{meta.emoji}</span>
-                  {s.name}
-                </Chip>
-              );
-            })}
-          </div>
-
-          <a
-            href="#contact"
-            className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl w-full
-   bg-[var(--accent)] text-white hover:bg-[color-mix(in_oklab,var(--accent),white_15%)]
-   dark:text-white dark:hover:bg-[color-mix(in_oklab,var(--accent),white_10%)]
-   px-5 py-3 text-sm font-medium transition-colors"
-          >
-            <Mail className="size-4" /> Написать мне
-          </a>
-        </GlassCard>
       </div>
     </section>
   );

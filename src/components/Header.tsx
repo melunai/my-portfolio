@@ -19,6 +19,7 @@ export default function Header() {
   const [active, setActive] = useState<string>("home");
   const [atTop, setAtTop] = useState(true);
   const [scrollPct, setScrollPct] = useState(0);
+  const headerRef = useRef<HTMLElement | null>(null);
 
   // прогресс и липкий стиль
   useEffect(() => {
@@ -47,7 +48,6 @@ export default function Header() {
           setActive((prev) => (prev === id ? prev : id));
         }
       },
-      // фокусируемся на центральной зоне экрана
       { rootMargin: "-35% 0px -50% 0px", threshold: [0.1, 0.25, 0.5, 0.75] }
     );
 
@@ -56,7 +56,7 @@ export default function Header() {
   }, []);
 
   // «магнитный» ховер ссылок
-  const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+  const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({ });
   const handleMagnet = (id: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
     const el = linkRefs.current[id];
     if (!el) return;
@@ -72,9 +72,7 @@ export default function Header() {
     e.preventDefault();
     const target = document.getElementById(id);
     if (target) {
-      // смещаем к началу секции, нативно
       target.scrollIntoView({ behavior: "smooth", block: "start" });
-      // обновим hash без резкого прыжка
       history.replaceState(null, "", `#${id}`);
       setOpen(false);
     }
@@ -89,6 +87,22 @@ export default function Header() {
 
   const nick = useMemo(() => DATA.nick || "me", []);
   const shortNick = nick.length > 14 ? nick.slice(0, 12) + "…" : nick;
+
+  // 👉 сообщаем остальному приложению реальную высоту хедера
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const apply = () =>
+      document.documentElement.style.setProperty("--header-h", `${el.offsetHeight}px`);
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(el);
+    window.addEventListener("resize", apply, { passive: true } as any);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", apply as any);
+    };
+  }, []);
 
   return (
     <>
@@ -111,6 +125,7 @@ export default function Header() {
       />
 
       <header
+        ref={headerRef}
         className={[
           "sticky top-0 z-50",
           atTop ? "backdrop-blur-0" : "backdrop-blur-md",
@@ -160,10 +175,7 @@ export default function Header() {
                 <a
                   key={item.id}
                   href={`#${item.id}`}
-                  ref={(el) => {
-                    // ✅ fix TS: callback-ref должен ничего НЕ возвращать
-                    linkRefs.current[item.id] = el;
-                  }}
+                  ref={(el) => { linkRefs.current[item.id] = el; }}
                   onClick={handleNavClick(item.id)}
                   className={[
                     "kawaii-link px-3 py-2 rounded-xl text-sm relative",
@@ -180,7 +192,6 @@ export default function Header() {
                     transition: "transform 200ms ease, color 220ms ease, background 220ms ease",
                   }}
                 >
-                  {/* активный хайлайт */}
                   <span
                     className="absolute inset-0 -z-10 rounded-xl"
                     style={{
