@@ -53,7 +53,16 @@ function AppInner() {
       <GridTexture />
 
       <Header />
-      <main id="main" className="mx-auto max-w-6xl px-4 z-10 relative">
+      <main
+  id="main"
+  className="
+    relative z-10
+    mx-auto w-full px-6
+    max-w-[1600px]
+    sm:px-8 md:px-10
+  "
+>
+
         <Hero />
         <Metrics />
         <Projects />
