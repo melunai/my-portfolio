@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import HeroSceneDark from "./HeroSceneDark";
 import HeroSceneLight from "./HeroSceneLight";
+import ThemeToggle from "./ThemeToggle";
 
 type HeroFrontProps = {
   onFinish: () => void;
@@ -38,7 +39,7 @@ export default function HeroFront({ onFinish }: HeroFrontProps) {
     };
   }, []);
 
-  // следим за темой
+  // Следим за темой
   useEffect(() => {
     const obs = new MutationObserver(() => {
       const th = document.documentElement.getAttribute("data-theme");
@@ -53,7 +54,7 @@ export default function HeroFront({ onFinish }: HeroFrontProps) {
 
   const handleClick = () => {
     const main = document.getElementById("main");
-    const hero = document.querySelector("#hero"); // Hero секция
+    const hero = document.querySelector("#hero");
 
     if (main) {
       main.style.opacity = "0";
@@ -61,15 +62,13 @@ export default function HeroFront({ onFinish }: HeroFrontProps) {
     }
     if (hero) hero.classList.remove("wake-up");
 
-    setExploding(true); // 💥 запускаем взрыв
+    setExploding(true);
 
-    // HeroFront исчезает быстро
     setTimeout(() => {
       setVisible(false);
       onFinish();
     }, 600);
 
-    // Сайт fade-in + Hero wake-up
     setTimeout(() => {
       if (main) main.style.opacity = "1";
       if (hero) hero.classList.add("wake-up");
@@ -82,50 +81,92 @@ export default function HeroFront({ onFinish }: HeroFrontProps) {
         {visible && (
           <motion.section
             key="hero-front"
-            initial={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.05, filter: "blur(12px) pointer-events-none" }}
+            initial={{ opacity: 1 }}
+            exit={{
+              opacity: 0,
+              scale: 1.05,
+              filter: "blur(12px)",
+            }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden"
+            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden transition-colors duration-700"
             style={{
               pointerEvents: exploding ? "none" : "auto",
               background:
                 theme === "dark"
-                  ? "radial-gradient(circle at 30% 40%, #1e1b4b, #000)"
+                  ? "radial-gradient(circle at 40% 45%, #241c4d, #06060d)"
                   : "linear-gradient(to bottom right, #fefcff, #e0eaff)",
             }}
           >
+            {/* === Тоггл темы === */}
+            <div className="absolute top-6 right-6 z-[10000]">
+              <ThemeToggle />
+            </div>
+
             {/* === Canvas сцена === */}
-            <div className="absolute inset-0 -z-10">
+            <motion.div
+              key={theme}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8 }}
+              className="absolute inset-0 -z-10"
+            >
               {theme === "dark" ? (
                 <HeroSceneDark mouse={{ x: 0, y: 0 }} exploding={exploding} />
               ) : (
                 <HeroSceneLight mouse={{ x: 0, y: 0 }} />
               )}
-            </div>
+            </motion.div>
 
             {/* === Контент === */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1 }}
-              className="text-center text-white max-w-xl px-6"
+              className="relative text-center max-w-2xl px-6"
+              style={{
+                color: theme === "dark" ? "#f8fafc" : "#1e1e2f",
+                textShadow:
+                  theme === "dark"
+                    ? "0 0 16px rgba(255,255,255,0.25), 0 0 40px rgba(255,215,140,0.25)"
+                    : "0 0 10px rgba(0,0,0,0.06)",
+                transform: "translateY(-6vh)",
+              }}
             >
-              <h1 className="text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">
+              <motion.h1
+                key={theme + "-title"}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.6 }}
+                className="text-5xl md:text-6xl font-extrabold mb-4 leading-tight"
+              >
                 {theme === "dark"
                   ? "Ощути тепло Солнца"
                   : "Поймай сияние вдохновения"}
-              </h1>
-              <p className="text-lg opacity-85 mb-8">
+              </motion.h1>
+
+              <motion.p
+                key={theme + "-desc"}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.7 }}
+                className="text-lg opacity-90 mb-10 max-w-lg mx-auto"
+                style={{
+                  color: theme === "dark" ? "rgba(248,250,252,0.9)" : "#222",
+                }}
+              >
                 {theme === "dark"
-                  ? "Позволь энергии света направить твой путь в коде."
+                  ? "Позволь энергии света направить твой путь в коде. Яркие идеи начинаются здесь."
                   : "Лёгкость, цвет и движение — твой путь в создании красоты."}
-              </p>
+              </motion.p>
 
               <motion.button
                 onClick={handleClick}
                 className="inline-flex items-center gap-3 rounded-2xl px-6 py-3 text-lg font-semibold
                            bg-gradient-to-r from-rose-500 to-pink-400 text-white shadow-lg
-                           hover:shadow-xl hover:scale-105 transition-all"
+                           hover:shadow-xl hover:scale-105 transition-all duration-300"
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.97 }}
               >
@@ -136,7 +177,6 @@ export default function HeroFront({ onFinish }: HeroFrontProps) {
         )}
       </AnimatePresence>
 
-      {/* === keyframes только для Hero === */}
       <style>{`
         @keyframes wakeUp {
           0% {
@@ -157,6 +197,14 @@ export default function HeroFront({ onFinish }: HeroFrontProps) {
         }
         #hero.wake-up {
           animation: wakeUp 1.4s ease-out forwards;
+        }
+        :root, [data-theme="dark"], [data-theme="light"] {
+          transition:
+            background-color 0.6s ease,
+            color 0.6s ease,
+            border-color 0.6s ease,
+            box-shadow 0.6s ease,
+            filter 0.6s ease;
         }
       `}</style>
     </>

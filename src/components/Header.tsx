@@ -9,10 +9,12 @@ const NAV: NavItem[] = [
   { id: "projects",     label: "Проекты" },
   { id: "skills",       label: "Навыки" },
   { id: "experience",   label: "Опыт" },
+  { id: "workflow",     label: "Этапы работы" }, // ✅ добавлен новый пункт
   { id: "testimonials", label: "Отзывы" },
   { id: "about",        label: "Обо мне" },
   { id: "contact",      label: "Контакты" },
 ];
+
 
 export default function Header() {
   const [open, setOpen] = useState(false);
