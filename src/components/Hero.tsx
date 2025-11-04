@@ -1,79 +1,94 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { Mail, Wand2 } from "lucide-react";
-import { DATA } from "../data";
-import HeroScene from "./HeroScene";
+import { motion, useMotionValue, useTransform } from "framer-motion";
+import { Mail, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function Hero() {
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const rotateX = useTransform(y, [-1, 1], [5, -5]);
+  const rotateY = useTransform(x, [-1, 1], [-5, 5]);
+  const [ready, setReady] = useState(false);
 
-  const go = (id: string) =>
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  useEffect(() => {
+    setTimeout(() => setReady(true), 300); // плавное появление
+  }, []);
 
   return (
     <section
-      id="home"
+      id="hero"
       onMouseMove={(e) => {
-        const x = (e.clientX / window.innerWidth - 0.5) * 2;
-        const y = (e.clientY / window.innerHeight - 0.5) * -2;
-        setMouse({ x, y });
+        const mx = (e.clientX / window.innerWidth - 0.5) * 2;
+        const my = (e.clientY / window.innerHeight - 0.5) * -2;
+        x.set(mx);
+        y.set(my);
       }}
-      onMouseLeave={() => setMouse({ x: 0, y: 0 })}
-      className="relative flex flex-col justify-center items-center 
-                 min-h-[calc(100svh-var(--header-h,64px))] 
-                 pt-[var(--header-h,64px)] overflow-hidden"
-      style={{ position: "relative" }}
+      onMouseLeave={() => {
+        x.set(0);
+        y.set(0);
+      }}
+      className="relative flex flex-col items-center justify-center text-center 
+                 w-full min-h-[100svh] pt-[var(--header-h,64px)] overflow-hidden px-6 sm:px-10"
     >
-      {/* ===== 3D фон ===== */}
-      <HeroScene mouse={mouse} />
-
-      {/* ===== контент ===== */}
-      <div className="relative z-10 text-center px-6 max-w-3xl">
+      {/* === Основной контент === */}
+      <motion.div
+        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+        className="z-10 max-w-3xl"
+        initial={{ opacity: 0, y: 80, filter: "blur(12px)" }}
+        animate={{
+          opacity: ready ? 1 : 0,
+          y: ready ? 0 : 40,
+          filter: ready ? "blur(0px)" : "blur(12px)",
+        }}
+        transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
+      >
         <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="relative font-extrabold leading-tight tracking-tight text-[clamp(2.2rem,6vw,4rem)]"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: ready ? 1 : 0 }}
+          transition={{ delay: 0.4, duration: 1.5 }}
+          className="font-extrabold text-[clamp(2.4rem,5vw,4.6rem)] leading-[1.1]
+                     bg-gradient-to-r from-rose-400 to-pink-300 text-transparent bg-clip-text
+                     drop-shadow-[0_2px_8px_rgba(236,72,153,0.25)]"
         >
-          Привет, я{" "}
-          <span className="bg-gradient-to-r from-[var(--accent)] via-pink-400 to-fuchsia-500 bg-clip-text text-transparent">
-            {DATA.name}
-          </span>
+          Твоя идея заслуживает сияния
         </motion.h1>
 
         <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="mt-4 text-[15px] md:text-[16px] max-w-xl mx-auto opacity-90 leading-relaxed"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: ready ? 1 : 0 }}
+          transition={{ delay: 1.0, duration: 1.5 }}
+          className="mt-4 text-lg text-[color:var(--text-muted)] leading-relaxed"
         >
-          {DATA.about ||
-            "Я создаю интерфейсы, которые чувствуют, двигаются и живут."}
+          Создаю визуально точные и эмоциональные интерфейсы — с вниманием к деталям.
         </motion.p>
 
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="mt-8 flex flex-wrap justify-center gap-3"
+          className="mt-10 flex flex-wrap justify-center gap-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: ready ? 1 : 0 }}
+          transition={{ delay: 1.4, duration: 1.2 }}
         >
           <button
-            onClick={() => go("contact")}
-            className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium text-white bg-[var(--accent)] hover:bg-[color-mix(in_oklab,var(--accent),white_10%)] shadow-md transition-colors"
+            onClick={() =>
+              document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })
+            }
+            className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium text-white
+                       bg-gradient-to-r from-rose-400 to-pink-300 hover:scale-105 transition-transform shadow-md"
           >
-            <Mail className="size-4" />
-            Написать
+            <Sparkles className="size-4" /> Мои проекты
           </button>
 
           <button
-            onClick={() => go("projects")}
-            className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium border border-[var(--border)] hover:border-[var(--accent)] hover:shadow-[0_0_0_2px_var(--accent)] transition-all"
+            onClick={() =>
+              document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })
+            }
+            className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium border border-[var(--border)]
+                       hover:border-[var(--accent)] hover:shadow-[0_0_0_2px_var(--accent)] 
+                       transition-all hover:scale-105"
           >
-            <Wand2 className="size-4" />
-            Проекты
+            <Mail className="size-4" /> Связаться
           </button>
         </motion.div>
-      </div>
+      </motion.div>
     </section>
   );
 }

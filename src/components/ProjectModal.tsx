@@ -82,7 +82,7 @@ function transformForEXIF(orientation: 1 | 3 | 6 | 8 | null) {
 /* ---------- ЛЕНИВАЯ КАРТИНКА ---------- */
 function LazyImg(props: React.ImgHTMLAttributes<HTMLImageElement> & { realSrc: string }) {
   const { realSrc, ...rest } = props;
-  const [src, setSrc] = useState<string>("");
+  const [src, setSrc] = useState<string | null>(null);
   const holderRef = useRef<HTMLImageElement | null>(null);
 
   useEffect(() => {
@@ -95,7 +95,7 @@ function LazyImg(props: React.ImgHTMLAttributes<HTMLImageElement> & { realSrc: s
         (entries) => {
           entries.forEach((e) => {
             if (e.isIntersecting) {
-              setSrc(realSrc);
+              setSrc(realSrc || null);
               io?.disconnect();
             }
           });
@@ -104,14 +104,21 @@ function LazyImg(props: React.ImgHTMLAttributes<HTMLImageElement> & { realSrc: s
       );
       io.observe(el);
     } else {
-      setSrc(realSrc);
+      setSrc(realSrc || null);
     }
 
     return () => io?.disconnect();
   }, [realSrc]);
 
+  // если src ещё нет — отрисуем только <img> без src (или skeleton)
+  if (!src) {
+    return <img ref={holderRef} {...rest} src={undefined} alt="" aria-hidden />;
+  }
+
+  // иначе нормальный тег с src
   return <img ref={holderRef} src={src} {...rest} />;
 }
+
 
 /* ======================================================= */
 export default function ProjectModal({ project, onClose }: Props) {
