@@ -124,27 +124,30 @@ export default function HeroFront({ onFinish }: HeroFrontProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1 }}
               className="relative text-center max-w-2xl px-6"
-              style={{
-                color: theme === "dark" ? "#f8fafc" : "#1e1e2f",
-                textShadow:
-                  theme === "dark"
-                    ? "0 0 16px rgba(255,255,255,0.25), 0 0 40px rgba(255,215,140,0.25)"
-                    : "0 0 10px rgba(0,0,0,0.06)",
-                transform: "translateY(-6vh)",
-              }}
+style={{
+  color: theme === "dark" ? "#3a3a3a" : "#222",
+}}
             >
-              <motion.h1
-                key={theme + "-title"}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.6 }}
-                className="text-5xl md:text-6xl font-extrabold mb-4 leading-tight"
-              >
-                {theme === "dark"
-                  ? "Ощути тепло Солнца"
-                  : "Поймай сияние вдохновения"}
-              </motion.h1>
+<motion.h1
+  key={theme + "-title"}
+  initial={{ opacity: 0, y: 12 }}
+  animate={{ opacity: 1, y: 0 }}
+  exit={{ opacity: 0, y: -10 }}
+  transition={{ duration: 0.6 }}
+  className="text-5xl md:text-6xl font-extrabold mb-4 leading-tight"
+  style={{
+    color: theme === "dark" ? "#1f1f1f" : "#1e1e2f", // почти чёрный, графитовый
+    textShadow:
+      theme === "dark"
+        ? "0 0 8px rgba(0,0,0,0.4)" // лёгкое свечение от фона
+        : "0 0 10px rgba(0,0,0,0.06)",
+  }}
+>
+  {theme === "dark"
+    ? "Ощути тепло Солнца"
+    : "Поймай сияние вдохновения"}
+</motion.h1>
+
 
               <motion.p
                 key={theme + "-desc"}
@@ -153,9 +156,9 @@ export default function HeroFront({ onFinish }: HeroFrontProps) {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.7 }}
                 className="text-lg opacity-90 mb-10 max-w-lg mx-auto"
-                style={{
-                  color: theme === "dark" ? "rgba(248,250,252,0.9)" : "#222",
-                }}
+style={{
+  color: theme === "dark" ? "rgba(209,213,219,0.85)" : "#222", // rgb(209,213,219) = slate-300
+}}
               >
                 {theme === "dark"
                   ? "Позволь энергии света направить твой путь в коде. Яркие идеи начинаются здесь."
