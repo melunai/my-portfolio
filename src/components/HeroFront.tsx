@@ -122,9 +122,9 @@ export default function HeroFront({ onFinish, onFlashStart }: HeroFrontProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1 }}
               className="relative text-center max-w-2xl px-6"
-              style={{
-                color: theme === "dark" ? "#f1f1f1" : "#1f1f1f",
-              }}
+style={{
+  color: theme === "dark" ? "#3a3a3a" : "#222",
+}}
             >
               <motion.h1
                 key={theme + "-title"}
@@ -133,12 +133,13 @@ export default function HeroFront({ onFinish, onFlashStart }: HeroFrontProps) {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.6 }}
                 className="text-5xl md:text-6xl font-extrabold mb-4 leading-tight"
-                style={{
-                  textShadow:
-                    theme === "dark"
-                      ? "0 0 10px rgba(255,255,255,0.2)"
-                      : "0 0 8px rgba(255,200,180,0.3)",
-                }}
+  style={{
+    color: theme === "dark" ? "#1f1f1f" : "#1e1e2f", // почти чёрный, графитовый
+    textShadow:
+      theme === "dark"
+        ? "0 0 8px rgba(0,0,0,0.4)" // лёгкое свечение от фона
+        : "0 0 10px rgba(0,0,0,0.06)",
+  }}
               >
                 {theme === "dark"
                   ? "Ощути тепло Солнца"
