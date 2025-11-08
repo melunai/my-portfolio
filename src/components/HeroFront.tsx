@@ -6,40 +6,37 @@ import ThemeToggle from "./ThemeToggle";
 
 type HeroFrontProps = {
   onFinish: () => void;
+  onFlashStart?: () => void; // 🔥 новый колбэк синхронизации с App
 };
 
-export default function HeroFront({ onFinish }: HeroFrontProps) {
+export default function HeroFront({ onFinish, onFlashStart }: HeroFrontProps) {
   const [visible, setVisible] = useState(true);
   const [exploding, setExploding] = useState(false);
+  const [shine, setShine] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">(
     document.documentElement.getAttribute("data-theme") === "dark"
       ? "dark"
       : "light"
   );
 
-  // Scroll lock fix
+  // Scroll lock
   useEffect(() => {
     const scrollY = window.scrollY;
     const body = document.body;
     body.style.position = "fixed";
     body.style.top = `-${scrollY}px`;
-    body.style.left = "0";
-    body.style.right = "0";
     body.style.width = "100%";
     body.style.overflow = "hidden";
     return () => {
       const y = body.style.top;
       body.style.position = "";
       body.style.top = "";
-      body.style.left = "";
-      body.style.right = "";
-      body.style.width = "";
       body.style.overflow = "";
       window.scrollTo(0, parseInt(y || "0") * -1);
     };
   }, []);
 
-  // Следим за темой
+  // следим за темой
   useEffect(() => {
     const obs = new MutationObserver(() => {
       const th = document.documentElement.getAttribute("data-theme");
@@ -53,6 +50,13 @@ export default function HeroFront({ onFinish }: HeroFrontProps) {
   }, []);
 
   const handleClick = () => {
+    // запускаем озарение в светлой теме
+    if (theme === "light") setShine(true);
+    setExploding(true);
+
+    // 🔥 сообщаем App, что пора включить flash
+    onFlashStart?.();
+
     const main = document.getElementById("main");
     const hero = document.querySelector("#hero");
 
@@ -61,8 +65,6 @@ export default function HeroFront({ onFinish }: HeroFrontProps) {
       main.style.transition = "opacity 1s ease";
     }
     if (hero) hero.classList.remove("wake-up");
-
-    setExploding(true);
 
     setTimeout(() => {
       setVisible(false);
@@ -82,11 +84,7 @@ export default function HeroFront({ onFinish }: HeroFrontProps) {
           <motion.section
             key="hero-front"
             initial={{ opacity: 1 }}
-            exit={{
-              opacity: 0,
-              scale: 1.05,
-              filter: "blur(12px)",
-            }}
+            exit={{ opacity: 0, scale: 1.05, filter: "blur(12px)" }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden transition-colors duration-700"
             style={{
@@ -97,12 +95,12 @@ export default function HeroFront({ onFinish }: HeroFrontProps) {
                   : "linear-gradient(to bottom right, #fefcff, #e0eaff)",
             }}
           >
-            {/* === Тоггл темы === */}
+            {/* переключатель темы */}
             <div className="absolute top-6 right-6 z-[10000]">
               <ThemeToggle />
             </div>
 
-            {/* === Canvas сцена === */}
+            {/* сцена */}
             <motion.div
               key={theme}
               initial={{ opacity: 0 }}
@@ -114,40 +112,38 @@ export default function HeroFront({ onFinish }: HeroFrontProps) {
               {theme === "dark" ? (
                 <HeroSceneDark mouse={{ x: 0, y: 0 }} exploding={exploding} />
               ) : (
-                <HeroSceneLight mouse={{ x: 0, y: 0 }} />
+                <HeroSceneLight shine={shine} />
               )}
             </motion.div>
 
-            {/* === Контент === */}
+            {/* текст */}
             <motion.div
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1 }}
               className="relative text-center max-w-2xl px-6"
-style={{
-  color: theme === "dark" ? "#3a3a3a" : "#222",
-}}
+              style={{
+                color: theme === "dark" ? "#f1f1f1" : "#1f1f1f",
+              }}
             >
-<motion.h1
-  key={theme + "-title"}
-  initial={{ opacity: 0, y: 12 }}
-  animate={{ opacity: 1, y: 0 }}
-  exit={{ opacity: 0, y: -10 }}
-  transition={{ duration: 0.6 }}
-  className="text-5xl md:text-6xl font-extrabold mb-4 leading-tight"
-  style={{
-    color: theme === "dark" ? "#1f1f1f" : "#1e1e2f", // почти чёрный, графитовый
-    textShadow:
-      theme === "dark"
-        ? "0 0 8px rgba(0,0,0,0.4)" // лёгкое свечение от фона
-        : "0 0 10px rgba(0,0,0,0.06)",
-  }}
->
-  {theme === "dark"
-    ? "Ощути тепло Солнца"
-    : "Поймай сияние вдохновения"}
-</motion.h1>
-
+              <motion.h1
+                key={theme + "-title"}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.6 }}
+                className="text-5xl md:text-6xl font-extrabold mb-4 leading-tight"
+                style={{
+                  textShadow:
+                    theme === "dark"
+                      ? "0 0 10px rgba(255,255,255,0.2)"
+                      : "0 0 8px rgba(255,200,180,0.3)",
+                }}
+              >
+                {theme === "dark"
+                  ? "Ощути тепло Солнца"
+                  : "Поймай сияние вдохновения"}
+              </motion.h1>
 
               <motion.p
                 key={theme + "-desc"}
@@ -156,9 +152,6 @@ style={{
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.7 }}
                 className="text-lg opacity-90 mb-10 max-w-lg mx-auto"
-style={{
-  color: theme === "dark" ? "rgba(209,213,219,0.85)" : "#222", // rgb(209,213,219) = slate-300
-}}
               >
                 {theme === "dark"
                   ? "Позволь энергии света направить твой путь в коде. Яркие идеи начинаются здесь."
@@ -179,37 +172,6 @@ style={{
           </motion.section>
         )}
       </AnimatePresence>
-
-      <style>{`
-        @keyframes wakeUp {
-          0% {
-            opacity: 0;
-            transform: translateY(50px) scale(0.96);
-            filter: blur(8px);
-          }
-          40% {
-            opacity: 0.7;
-            transform: translateY(10px) scale(1.03);
-            filter: blur(2px);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            filter: blur(0);
-          }
-        }
-        #hero.wake-up {
-          animation: wakeUp 1.4s ease-out forwards;
-        }
-        :root, [data-theme="dark"], [data-theme="light"] {
-          transition:
-            background-color 0.6s ease,
-            color 0.6s ease,
-            border-color 0.6s ease,
-            box-shadow 0.6s ease,
-            filter 0.6s ease;
-        }
-      `}</style>
     </>
   );
 }
