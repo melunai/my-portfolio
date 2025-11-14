@@ -3,10 +3,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import HeroSceneDark from "./HeroSceneDark";
 import HeroSceneLight from "./HeroSceneLight";
 import ThemeToggle from "./ThemeToggle";
+import { useI18n } from "../i18n/i18n";
 
 type HeroFrontProps = {
   onFinish: () => void;
-  onFlashStart?: () => void; // 🔥 новый колбэк синхронизации с App
+  onFlashStart?: () => void; // 🔥 колбэк синхронизации с App
 };
 
 export default function HeroFront({ onFinish, onFlashStart }: HeroFrontProps) {
@@ -18,6 +19,14 @@ export default function HeroFront({ onFinish, onFlashStart }: HeroFrontProps) {
       ? "dark"
       : "light"
   );
+
+  const { lang, setLang, t } = useI18n();
+
+  const toggleLang = () => {
+    const next = lang === "ru" ? "en" : "ru";
+    setLang(next);
+    // ⚠️ без скроллов и hash-акробатики — просто смена языка в контексте
+  };
 
   // Scroll lock
   useEffect(() => {
@@ -50,11 +59,9 @@ export default function HeroFront({ onFinish, onFlashStart }: HeroFrontProps) {
   }, []);
 
   const handleClick = () => {
-    // запускаем озарение в светлой теме
     if (theme === "light") setShine(true);
     setExploding(true);
 
-    // 🔥 сообщаем App, что пора включить flash
     onFlashStart?.();
 
     const main = document.getElementById("main");
@@ -77,6 +84,18 @@ export default function HeroFront({ onFinish, onFlashStart }: HeroFrontProps) {
     }, 1400);
   };
 
+  const title =
+    theme === "dark"
+      ? t("heroFront.darkTitle")
+      : t("heroFront.lightTitle");
+
+  const desc =
+    theme === "dark"
+      ? t("heroFront.darkSubtitle")
+      : t("heroFront.lightSubtitle");
+
+  const btnLabel = t("heroFront.cta");
+
   return (
     <>
       <AnimatePresence>
@@ -95,9 +114,18 @@ export default function HeroFront({ onFinish, onFlashStart }: HeroFrontProps) {
                   : "linear-gradient(to bottom right, #fefcff, #e0eaff)",
             }}
           >
-            {/* переключатель темы */}
-            <div className="absolute top-6 right-6 z-[10000]">
+            {/* переключатель темы + языка */}
+            <div className="absolute top-6 right-6 z-[10000] flex items-center gap-2">
               <ThemeToggle />
+              <button
+                type="button"
+                onClick={toggleLang}
+                className="px-3 py-1 rounded-xl border border-[var(--chip-border)] bg-[var(--chip-bg)] hover:bg-[var(--chip-hover)] transition text-sm font-medium"
+                aria-label={t("footer.toggleLang")}
+                title={t("footer.toggleLang")}
+              >
+                {lang === "ru" ? "RU" : "EN"}
+              </button>
             </div>
 
             {/* сцена */}
@@ -122,41 +150,37 @@ export default function HeroFront({ onFinish, onFlashStart }: HeroFrontProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1 }}
               className="relative text-center max-w-2xl px-6"
-style={{
-  color: theme === "dark" ? "#3a3a3a" : "#222",
-}}
+              style={{
+                color: theme === "dark" ? "#3a3a3a" : "#222",
+              }}
             >
               <motion.h1
-                key={theme + "-title"}
+                key={theme + "-" + lang + "-title"}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.6 }}
                 className="text-5xl md:text-6xl font-extrabold mb-4 leading-tight"
-  style={{
-    color: theme === "dark" ? "#1f1f1f" : "#1e1e2f", // почти чёрный, графитовый
-    textShadow:
-      theme === "dark"
-        ? "0 0 8px rgba(0,0,0,0.4)" // лёгкое свечение от фона
-        : "0 0 10px rgba(0,0,0,0.06)",
-  }}
+                style={{
+                  color: theme === "dark" ? "#1f1f1f" : "#1e1e2f",
+                  textShadow:
+                    theme === "dark"
+                      ? "0 0 8px rgba(0,0,0,0.4)"
+                      : "0 0 10px rgba(0,0,0,0.06)",
+                }}
               >
-                {theme === "dark"
-                  ? "Ощути тепло Солнца"
-                  : "Поймай сияние вдохновения"}
+                {title}
               </motion.h1>
 
               <motion.p
-                key={theme + "-desc"}
+                key={theme + "-" + lang + "-desc"}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.7 }}
                 className="text-lg opacity-90 mb-10 max-w-lg mx-auto"
               >
-                {theme === "dark"
-                  ? "Позволь энергии света направить твой путь в коде. Яркие идеи начинаются здесь."
-                  : "Лёгкость, цвет и движение — твой путь в создании красоты."}
+                {desc}
               </motion.p>
 
               <motion.button
@@ -167,7 +191,7 @@ style={{
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.97 }}
               >
-                🚀 Продолжить
+                🚀 {btnLabel}
               </motion.button>
             </motion.div>
           </motion.section>

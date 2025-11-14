@@ -94,3 +94,5 @@ a { color: var(--link); }
 
 :root[data-theme="light"] { --glow: rgba(244, 114, 182, 0.35); }
 :root[data-theme="dark"]  { --glow: rgba(244, 114, 182, 0.28); }
+/* Typography CSS variables (safe defaults) */
+:root{--font-title:Inter;--font-subtitle:Inter;--font-body:Inter;--fw-title:800;--fw-subtitle:500;--fw-body:400}

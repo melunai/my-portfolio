@@ -2,17 +2,18 @@ import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import Section from "./Section";
 import SectionLead from "./SectionLead";
+import { useI18n } from "../i18n/i18n";
 import { useIOInView } from "./useIOInView";
 
-const STAGES = [
-  { title: "Знакомство", text: "Короткий созвон/переписка: цели, стиль, ожидания." },
-  { title: "Брифирование", text: "Собираю вводные, структуру и визуальное направление." },
-  { title: "Правки", text: "Итеративно улучшаем, быстро согласовываем детали." },
-  { title: "Итог", text: "Финализирую, передаю материалы и помогаю с запуском." },
-];
 
 export default function WorkflowStages() {
+  const { t } = useI18n(); {
   const { ref, inView } = useIOInView<HTMLDivElement>({ once: true });
+
+    const STAGES = t("sections.workflow.stages") as Array<{
+    title: string;
+    text: string;
+  }>;
   const variants = {
     hide: { opacity: 0, y: 16 },
     show: (i: number) => ({
@@ -23,9 +24,9 @@ export default function WorkflowStages() {
   };
 
   return (
-    <Section id="workflow" title="Этапы работы">
+    <Section id="workflow" title={t("sections.workflow.title")}>
       <SectionLead>
-        Минимальный шум, максимум прозрачности — от старта до релиза.
+        {t("sections.workflow.lead")}
       </SectionLead>
 
       <div
@@ -104,4 +105,5 @@ export default function WorkflowStages() {
       `}</style>
     </Section>
   );
+}
 }

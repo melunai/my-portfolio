@@ -1,4 +1,5 @@
 import Section from "./Section";
+import { useI18n } from "../i18n/i18n";
 import SectionLead from "./SectionLead";
 import GlassCard from "./GlassCard";
 import ContactForm from "./ContactForm";
@@ -9,6 +10,8 @@ import { motion } from "framer-motion";
 import { useIOInView } from "./useIOInView";
 
 export default function Contact(): JSX.Element {
+  const { t } = useI18n();
+
   // IO-въезд для всей карточки контактов + лёгкий pop-in
   const { ref, inView } = useIOInView<HTMLDivElement>({
     once: true,
@@ -27,8 +30,14 @@ export default function Contact(): JSX.Element {
   };
 
   return (
-    <Section id="contact" title="Связаться со мной">
-      <motion.div ref={ref} initial="hide" animate={inView ? "show" : "hide"} variants={cardVar} className="relative">
+    <Section id="contact" title={t("sections.contact.title")}>
+      <motion.div
+        ref={ref}
+        initial="hide"
+        animate={inView ? "show" : "hide"}
+        variants={cardVar}
+        className="relative"
+      >
         <GlassCard
           className="relative overflow-hidden p-6 md:p-10"
           style={{
@@ -53,7 +62,7 @@ export default function Contact(): JSX.Element {
           <div className="relative grid gap-10 md:grid-cols-2">
             <div className="self-center">
               <SectionLead>
-                Есть идея или задача? Напишите — вернусь с предложениями, сроками и аккуратной сметой.
+                {t("sections.contact.lead")}
               </SectionLead>
 
               <div className="mt-4 grid gap-3">
@@ -80,7 +89,10 @@ export default function Contact(): JSX.Element {
             </div>
 
             <div className="max-w-xl md:ml-auto">
-              <ContactForm targetEmail={DATA.email} defaultTelegram={DATA.telegram} />
+              <ContactForm
+                targetEmail={DATA.email}
+                defaultTelegram={DATA.telegram}
+              />
             </div>
           </div>
         </GlassCard>

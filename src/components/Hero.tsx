@@ -2,7 +2,10 @@ import { motion, useMotionValue, useTransform } from "framer-motion";
 import { Mail, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { useI18n } from "../i18n/i18n";
+
 export default function Hero() {
+  const { t } = useI18n();
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const rotateX = useTransform(y, [-1, 1], [5, -5]);
@@ -15,7 +18,7 @@ export default function Hero() {
 
   return (
     <section
-      id="hero"
+      id="home"
       onMouseMove={(e) => {
         const mx = (e.clientX / window.innerWidth - 0.5) * 2;
         const my = (e.clientY / window.innerHeight - 0.5) * -2;
@@ -32,7 +35,7 @@ export default function Hero() {
       {/* === Основной контент === */}
       <motion.div
         style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-        className="z-10 max-w-3xl"
+        className="z-10"
         initial={{ opacity: 0, y: 80, filter: "blur(12px)" }}
         animate={{
           opacity: ready ? 1 : 0,
@@ -45,20 +48,20 @@ export default function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: ready ? 1 : 0 }}
           transition={{ delay: 0.4, duration: 1.5 }}
-          className="font-extrabold text-[clamp(2.4rem,5vw,4.6rem)] leading-[1.1]
+          className="ty-title xl font-extrabold text-[clamp(2.4rem,5vw,4.6rem)] leading-[1.1]
                      bg-gradient-to-r from-rose-400 to-pink-300 text-transparent bg-clip-text
                      drop-shadow-[0_2px_8px_rgba(236,72,153,0.25)]"
         >
-          Твоя идея заслуживает сияния
+          {t('hero.title')}
         </motion.h1>
 
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: ready ? 1 : 0 }}
           transition={{ delay: 1.0, duration: 1.5 }}
-          className="mt-4 text-lg text-[color:var(--text-muted)] leading-relaxed"
+          className="ty-subtitle lg mt-4 text-lg text-[color:var(--text-muted)] leading-relaxed"
         >
-          Создаю визуально точные и эмоциональные интерфейсы — с вниманием к деталям.
+          {t('hero.subtitle')}
         </motion.p>
 
         <motion.div
@@ -74,7 +77,7 @@ export default function Hero() {
             className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium text-white
                        bg-gradient-to-r from-rose-400 to-pink-300 hover:scale-105 transition-transform shadow-md"
           >
-            <Sparkles className="size-4" /> Мои проекты
+            <Sparkles className="size-4" /> {t('hero.ctaProjects')}
           </button>
 
           <button
@@ -85,7 +88,7 @@ export default function Hero() {
                        hover:border-[var(--accent)] hover:shadow-[0_0_0_2px_var(--accent)] 
                        transition-all hover:scale-105"
           >
-            <Mail className="size-4" /> Связаться
+            <Mail className="size-4" /> {t('hero.ctaContact')}
           </button>
         </motion.div>
       </motion.div>

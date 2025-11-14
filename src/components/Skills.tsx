@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Section from "./Section";
+import { useI18n } from "../i18n/i18n";
 import SectionLead from "./SectionLead";
 import GlassCard from "./GlassCard";
 import Chip from "./Chip";
@@ -8,6 +9,7 @@ import { DATA, skillMeta } from "../data";
 import Confetti from "react-confetti";
 
 export default function Skills() {
+  const { t } = useI18n(); {
   const [confetti, setConfetti] = useState<{ key: number; x: number; y: number } | null>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -43,7 +45,7 @@ export default function Skills() {
   const BODY_DELAY = 0.70;
 
   return (
-    <Section id="skills" title="Навыки и инструменты">
+    <Section id="skills" title={t("sections.skills.title")}>
       {/* 2) Подзаголовок */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -51,7 +53,7 @@ export default function Skills() {
         viewport={{ once: true, amount: 0.5 }}
         transition={{ duration: 0.5, delay: LEAD_DELAY, ease: [0.22, 1, 0.36, 1] }}
       >
-        <SectionLead>Инструменты и стек, которыми я реально пользуюсь в работе.</SectionLead>
+        <SectionLead>{t("sections.skills.lead")}</SectionLead>
       </motion.div>
 
       {/* 3) Основной блок со скиллами */}
@@ -147,4 +149,5 @@ export default function Skills() {
       </motion.div>
     </Section>
   );
+}
 }

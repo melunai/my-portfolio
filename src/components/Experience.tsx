@@ -10,13 +10,36 @@ import {
 import Section from "./Section";
 import SectionLead from "./SectionLead";
 import { EXPERIENCE } from "../data";
-import { Building2, CalendarDays, ChevronDown, ChevronUp } from "lucide-react";
+import { useI18n } from "../i18n/i18n";
+import {
+  Building2,
+  CalendarDays,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 
 type ItemState = { open: boolean };
 
+/** Универсальный пикер текста: строка или { ru, en } */
+function pickText(value: any, lang: string): string {
+  if (value == null) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "object") {
+    const v = value as { ru?: string; en?: string };
+    return (
+      (lang === "en" ? v.en : v.ru) ??
+      v.ru ??
+      v.en ??
+      String(value)
+    );
+  }
+  return String(value);
+}
+
 export default function Experience() {
+  const { t, lang } = useI18n();
   const reduce = useReducedMotion();
-  const [openMap, setOpenMap] = useState<Record<string, ItemState>>({});
+  const [openMap, setOpenMap] = useState<Record<number, ItemState>>({});
   const listRef = useRef<HTMLDivElement | null>(null);
 
   const { scrollYProgress } = useScroll({
@@ -25,14 +48,15 @@ export default function Experience() {
   });
   const fillScale = useTransform(scrollYProgress, [0, 1], [0.05, 1]);
 
+  // по умолчанию открываем первый элемент
   useEffect(() => {
     if (EXPERIENCE.length) {
-      setOpenMap((m) => ({ ...m, [EXPERIENCE[0].company]: { open: true } }));
+      setOpenMap((m) => ({ ...m, 0: { open: true } }));
     }
   }, []);
 
-  const toggle = (company: string) =>
-    setOpenMap((m) => ({ ...m, [company]: { open: !m[company]?.open } }));
+  const toggle = (idx: number) =>
+    setOpenMap((m) => ({ ...m, [idx]: { open: !m[idx]?.open } }));
 
   const lineAnim = useMemo(
     () => ({
@@ -45,28 +69,36 @@ export default function Experience() {
   );
 
   const LEAD_DELAY = 0.35;
-  const BODY_DELAY = 0.70;
+  const BODY_DELAY = 0.7;
 
   return (
-    <Section id="experience" title="Опыт">
+    <Section id="experience" title={t("sections.experience.title")}>
       <div className="relative">
-        {/* 2) Подзаголовок после заголовка секции */}
+        {/* Подзаголовок */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.5, delay: LEAD_DELAY, ease: [0.22, 1, 0.36, 1] }}
+          transition={{
+            duration: 0.5,
+            delay: LEAD_DELAY,
+            ease: [0.22, 1, 0.36, 1],
+          }}
           className="flex items-start justify-between gap-4"
         >
-          <SectionLead>Где я приносил пользу и за что отвечал.</SectionLead>
+          <SectionLead>{t("sections.experience.lead")}</SectionLead>
         </motion.div>
 
-        {/* 3) Основная лента — после подзаголовка */}
+        {/* Основная лента */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.35 }}
-          transition={{ duration: 0.55, delay: BODY_DELAY, ease: [0.22, 1, 0.36, 1] }}
+          transition={{
+            duration: 0.55,
+            delay: BODY_DELAY,
+            ease: [0.22, 1, 0.36, 1],
+          }}
           ref={listRef}
           className="relative mt-8 grid grid-cols-[16px,1fr] gap-4 justify-center"
         >
@@ -111,19 +143,24 @@ export default function Experience() {
           {/* Карточки */}
           <div className="space-y-5 max-w-9xl mx-auto w-full">
             <AnimatePresence initial={false}>
-              {EXPERIENCE.map((e, i) => {
-                const isOpen = openMap[e.company]?.open ?? false;
+              {EXPERIENCE.map((e: any, i: number) => {
+                const isOpen = openMap[i]?.open ?? false;
+
+                const role = pickText(e.role, lang);
+                const company = pickText(e.company, lang);
+                const period = pickText(e.period, lang);
+                const points: any[] = e.points ?? [];
 
                 return (
                   <motion.article
-                    key={e.company}
+                    key={`${i}-${company}`}
                     initial={{ opacity: 0, y: 16, scale: 0.995 }}
                     whileInView={{ opacity: 1, y: 0, scale: 1 }}
                     viewport={{ once: true, amount: 0.2 }}
                     transition={{ type: "spring", stiffness: 320, damping: 22 }}
                     className="group relative overflow-visible"
                   >
-                    {/* Точка */}
+                    {/* Точка на линии */}
                     <motion.div
                       aria-hidden
                       className="absolute -left-[26px] top-2 size-5 rounded-full grid place-items-center z-0"
@@ -184,7 +221,7 @@ export default function Experience() {
                       <header className="relative z-10 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                         <div className="min-w-0">
                           <h3 className="text-lg md:text-xl font-extrabold tracking-tight">
-                            {e.role}
+                            {role}
                           </h3>
                           <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-[color:var(--muted)]">
                             <span
@@ -192,21 +229,21 @@ export default function Experience() {
                                          bg-[var(--chip-bg)] border border-[var(--chip-border)]"
                             >
                               <Building2 className="size-3.5 opacity-80" />
-                              {e.company}
+                              {company}
                             </span>
                             <span
                               className="inline-flex items-center gap-1.5 rounded-xl px-2 py-1
                                          bg-[var(--chip-bg)] border border-[var(--chip-border)]"
                             >
                               <CalendarDays className="size-3.5 opacity-80" />
-                              {e.period}
+                              {period}
                             </span>
                           </div>
                         </div>
 
                         <button
                           type="button"
-                          onClick={() => toggle(e.company)}
+                          onClick={() => toggle(i)}
                           aria-expanded={isOpen}
                           className="mt-2 md:mt-0 inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-medium
                                      bg-[var(--btn-bg)] text-[color:var(--fg)] border border-[var(--btn-border)]
@@ -215,11 +252,13 @@ export default function Experience() {
                         >
                           {isOpen ? (
                             <>
-                              Свернуть <ChevronUp className="size-4" />
+                              {lang === "ru" ? "Свернуть" : "Collapse"}
+                              <ChevronUp className="size-4" />
                             </>
                           ) : (
                             <>
-                              Показать детали <ChevronDown className="size-4" />
+                              {lang === "ru" ? "Показать детали" : "Show details"}
+                              <ChevronDown className="size-4" />
                             </>
                           )}
                         </button>
@@ -238,9 +277,9 @@ export default function Experience() {
                             }}
                             className="relative z-10 mt-3 overflow-hidden space-y-2"
                           >
-                            {e.points.map((p, j) => (
+                            {points.map((p, j) => (
                               <motion.li
-                                key={p}
+                                key={`${i}-${j}`}
                                 initial={{ opacity: 0, x: -10 }}
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true, amount: 0.6 }}
@@ -264,7 +303,7 @@ export default function Experience() {
                                         : "var(--confetti2)",
                                   }}
                                 />
-                                <span>{p}</span>
+                                <span>{pickText(p, lang)}</span>
                               </motion.li>
                             ))}
                           </motion.ul>

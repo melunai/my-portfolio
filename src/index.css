@@ -2,8 +2,8 @@
 @import './theme/theme.css';
 
 @font-face {
-  font-family: "Compacta LT Light Compress CY";
-  src: url("/src/assets/fonts/LT_55850.otf") format("truetype");
+  font-family: "Jun_Italic";
+  src: url("/src/assets/fonts/Jun_Italic.otf") format("truetype");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -474,68 +474,7 @@ body {
 :root[data-theme="dark"] .skeleton-soft {
   background: color-mix(in oklab, var(--card), var(--accent) 14%);
 }
-/* === Compacta — статичный стеклянный заголовок без hover === */
-.glass-section-title {
-  position: relative;
-  display: inline-block;
-  text-align: center;
 
-  /* 🩷 Шрифт и форма */
-  font-family: "Compacta LT Light Compress CY", "Inter", sans-serif;
-  font-weight: 300;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-  line-height: 1;
-  transform: scaleY(1.18);
-
-  /* 🎨 Цвет — мягкий градиент с лучшей читаемостью в светлой теме */
-  background: linear-gradient(
-    to bottom,
-    color-mix(in oklab, var(--text), var(--accent) 25%) 0%,
-    color-mix(in oklab, var(--accent), var(--text) 30%) 50%,
-    color-mix(in oklab, var(--accent), transparent 92%) 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-
-  /* 🌫 Мягкое стеклянное растворение низа */
-  mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
-
-  /* ☁️ Лёгкое внутреннее свечение, без hover */
-  filter:
-    drop-shadow(0 2px 8px color-mix(in oklab, var(--accent), transparent 85%))
-    drop-shadow(0 0 4px color-mix(in oklab, var(--accent), transparent 92%));
-
-  transition: none;
-}
-
-/* === Подзаголовок SectionLead с адаптацией под светлую и тёмную темы === */
-.glass-lead {
-  font-family: "Novelist", "Inter", sans-serif;
-  font-weight: 300;
-  letter-spacing: 0.02em;
-  line-height: 1.6;
-  text-align: center;
-  transform: scaleY(1.06);
-
-  /* 🌫 Мягкий fade нижней части букв */
-  mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
-
-  /* 🎨 Общий градиент для текста — автоматически реагирует на тему */
-  background: linear-gradient(
-    to bottom,
-    color-mix(in oklab, var(--fg), white 8%) 0%,
-    color-mix(in oklab, var(--fg), transparent 85%) 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-
-  /* ☁️ без glow, просто мягкий контраст */
-  filter: none;
-  transition: background 0.4s ease, color 0.4s ease;
-}
 .contact-form::before {
   content: "";
   position: absolute;
@@ -566,3 +505,178 @@ body {
   flex-direction: column;
   height: 100%;
 }
+
+/* === Typography roles === */
+/* === Typography roles === */
+
+/* 🩷 Заголовки */
+.ty-title {
+  font-family: "Jun_Italic", "Inter", sans-serif;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  line-height: 1;
+  transform: scaleY(1.18);
+
+  /* 🎨 Цвет — мягкий градиент с лучшей читаемостью в светлой теме */
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--text), var(--accent) 25%) 0%,
+    color-mix(in oklab, var(--accent), var(--text) 30%) 50%,
+    color-mix(in oklab, var(--accent), transparent 92%) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  /* 🌫 Мягкое стеклянное растворение низа */
+  mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+
+  /* ☁️ Лёгкое внутреннее свечение */
+  filter:
+    drop-shadow(0 2px 8px color-mix(in oklab, var(--accent), transparent 85%))
+    drop-shadow(0 0 4px color-mix(in oklab, var(--accent), transparent 92%));
+
+  transition: none;
+}
+
+/* 🔠 Размеры заголовков */
+.ty-title.xl {
+  font-size: clamp(8rem, 7vw, 6rem);   /* Hero */
+  line-height: 1.05;
+}
+
+.ty-title.section {
+  font-size: clamp(7rem, 4.5vw, 3.5rem); /* Заголовки секций */
+  line-height: 1.1;
+}
+
+.ty-title.md {
+  font-size: clamp(1.5rem, 3vw, 2rem);   /* Мелкие заголовки (в карточках) */
+  line-height: 1.15;
+}
+
+/* 🩵 Подзаголовки / лиды */
+.ty-subtitle {
+  font-family: "Novelist", "Inter", sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+  text-align: center;
+  transform: scaleY(1.06);
+
+  mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--fg), white 8%) 0%,
+    color-mix(in oklab, var(--fg), transparent 85%) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  filter: none;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+/* 🔠 Размеры подзаголовков */
+.ty-subtitle.lg {
+  font-size: 1.5rem; /* лиды секций */
+  line-height: 1.6;
+}
+
+.ty-subtitle.md {
+  font-size: 1.1rem;  /* средний размер */
+  line-height: 1.55;
+}
+
+.ty-subtitle.sm {
+  font-size: 0.95rem; /* мелкие подзаголовки */
+  line-height: 1.5;
+}
+
+/* 💬 Основной текст */
+.ty-body {
+  font-family: var(--font-body, "Inter"), system-ui, sans-serif;
+  font-weight: var(--fw-body, 400);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+/* === Language toggle (glass pill) === */
+.lang-toggle{
+  position: relative;
+  display: inline-grid;
+  grid-auto-flow: column;
+  align-items: center;
+  gap: .5rem;
+  padding: .35rem .5rem;
+  border-radius: 9999px;
+  backdrop-filter: blur(8px);
+  transition: background 240ms ease, border-color 240ms ease, box-shadow 240ms ease, transform 120ms ease;
+  box-shadow:
+    0 6px 18px -12px color-mix(in oklab, var(--accent), transparent 86%),
+    0 2px 6px -3px color-mix(in oklab, var(--accent), transparent 90%);
+  isolation: isolate; /* чтобы dot рисовался под текстом */
+  --dot-x: 0px;
+}
+.lang-toggle:active { transform: translateY(1px) scale(.995); }
+
+.lang-toggle .lang-opt{
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: .06em;
+  font-weight: 600;
+  opacity: .8;
+  transition: opacity 220ms ease, filter 220ms ease;
+  padding: 0 .15rem;
+}
+
+/* Перекат «огонька» */
+.lang-toggle .lang-dot{
+  position: absolute;
+  inset: 2px;
+  width: calc(50% - 4px);
+  height: calc(100% - 4px);
+  border-radius: 9999px;
+  background:
+    radial-gradient(80% 120% at 20% 30%, color-mix(in oklab, var(--accent), white 18%), transparent 60%),
+    linear-gradient(180deg, color-mix(in oklab, var(--accent), transparent 0%), color-mix(in oklab, var(--accent), transparent 70%));
+  box-shadow:
+    0 0 14px color-mix(in oklab, var(--accent), transparent 80%),
+    inset 0 0 8px color-mix(in oklab, var(--accent), transparent 85%);
+  z-index: -1;
+  transform: translateX(var(--dot-x));
+  transition: transform 300ms cubic-bezier(.2,.8,.2,1);
+}
+
+/* Состояния: ru слева, en справа */
+.lang-toggle[data-state="ru"] { --dot-x: 0px; }
+.lang-toggle[data-state="en"] { --dot-x: calc(100% + 2px); } /* dot переедет на вторую половину */
+
+.lang-toggle[data-state="ru"] .lang-opt:first-child{ opacity: 1; filter: none; }
+.lang-toggle[data-state="ru"] .lang-opt:last-child{ opacity: .7; filter: saturate(.8); }
+.lang-toggle[data-state="en"] .lang-opt:first-child{ opacity: .7; filter: saturate(.8); }
+.lang-toggle[data-state="en"] .lang-opt:last-child{ opacity: 1; filter: none; }
+
+/* Нежное «свеченье» страницы при смене языка */
+html.lang-switching::before{
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 80% at 50% -10%, color-mix(in oklab, var(--accent), transparent 92%), transparent 60%),
+    radial-gradient(80% 60% at 80% 10%, color-mix(in oklab, var(--ribbon-sheen-start), transparent 92%), transparent 70%);
+  opacity: 0;
+  animation: langGlow 420ms ease forwards;
+  z-index: 999999;
+}
+@keyframes langGlow{
+  0%   { opacity: 0; filter: blur(0px); }
+  40%  { opacity: .55; filter: blur(.5px); }
+  100% { opacity: 0; filter: blur(0px); }
+}
+
+

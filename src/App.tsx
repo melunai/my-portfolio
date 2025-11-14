@@ -19,6 +19,7 @@ import WorkflowStages from "./components/WorkflowStages";
 import HeroFront from "./components/HeroFront";
 import { DATA } from "./data";
 import { LiveModeProvider, LiveModeToggle, useLiveMode } from "./components/LiveMode";
+import { I18nProvider } from "./i18n/i18n";
 
 /* ------------------------- APP INNER ------------------------- */
 function AppInner() {
@@ -76,7 +77,8 @@ const handleHeroFrontDone = () => {
 
 
   return (
-    <div
+    <I18nProvider>
+<div
       className={[
         "min-h-dvh relative text-slate-800 dark:text-slate-100 live-container theme-colors overflow-x-clip",
         "bg-gradient-to-b from-rose-800/30 to-rose-100/90 dark:from-slate-950 dark:to-slate-950",
@@ -155,10 +157,11 @@ const handleHeroFrontDone = () => {
       }
       `}</style>
     </div>
+    </I18nProvider>
   );
 }
 
-/* ------------------------- APP ROOT ------------------------- */
+
 export default function App() {
   return (
     <LiveModeProvider>

@@ -1,73 +1,122 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
+import { useI18n } from "../i18n/i18n";
 import { DATA } from "../data";
 
 type NavItem = { id: string; label: string };
 
 const NAV: NavItem[] = [
-  { id: "home",         label: "Главная" },
-  { id: "projects",     label: "Проекты" },
-  { id: "skills",       label: "Навыки" },
-  { id: "experience",   label: "Опыт" },
-  { id: "workflow",     label: "Этапы работы" }, // ✅ добавлен новый пункт
-  { id: "testimonials", label: "Отзывы" },
-  { id: "about",        label: "Обо мне" },
-  { id: "contact",      label: "Контакты" },
+  { id: "home", label: "common.nav.home" },
+  { id: "projects", label: "common.nav.projects" },
+  { id: "skills", label: "common.nav.skills" },
+  { id: "workflow", label: "common.nav.workflow" },
+  { id: "experience", label: "common.nav.experience" },
+  { id: "testimonials", label: "common.nav.testimonials" },
+  { id: "about", label: "common.nav.about" },
+  { id: "contact", label: "common.nav.contact" },
 ];
 
-
 export default function Header() {
+  const { t, lang, setLang } = useI18n();
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<string>("home");
   const [atTop, setAtTop] = useState(true);
   const [scrollPct, setScrollPct] = useState(0);
   const headerRef = useRef<HTMLElement | null>(null);
+  const ioRef = useRef<IntersectionObserver | null>(null);
+
+  // --- вспомогательный расчёт активной секции (без IO) ---
+  const computeActive = () => {
+    const ids = NAV.map((n) => n.id);
+    const vh = window.innerHeight;
+    const center = vh / 2;
+
+    let bestId = "home";
+    let bestScore = -Infinity;
+
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (!el) continue;
+      const r = el.getBoundingClientRect();
+      const visible = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0));
+      const mid = (r.top + r.bottom) / 2;
+      const dist = Math.abs(mid - center);
+      const score = visible - dist * 0.1; // «награда» за видимость, «штраф» за удаление от центра
+      if (score > bestScore) {
+        bestScore = score;
+        bestId = id;
+      }
+    }
+    setActive((prev) => (prev === bestId ? prev : bestId));
+  };
 
   // прогресс и липкий стиль
   useEffect(() => {
     const onScroll = () => {
       setAtTop(window.scrollY < 8);
-      const max = document.body.scrollHeight - window.innerHeight;
+      const root = document.scrollingElement || document.documentElement;
+      const max = (root.scrollHeight - root.clientHeight) || 0;
       setScrollPct(max > 0 ? (window.scrollY / max) * 100 : 0);
+      if (window.scrollY < 4) setActive("home"); // страховка у самого верха
+      computeActive(); // обновляем активную секцию на каждом скролле
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const onResize = () => computeActive();
+    window.addEventListener("resize", onResize, { passive: true } as any);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize as any);
+    };
   }, []);
 
-  // активная секция (плавно, центр-биас)
-  useEffect(() => {
+  // активная секция (перепривязка при ререндере/смене языка)
+  const bindSections = () => {
+    ioRef.current?.disconnect();
     const sections = NAV.map((n) => document.getElementById(n.id)).filter(Boolean) as HTMLElement[];
     if (!sections.length) return;
-
-    const io = new IntersectionObserver(
+    ioRef.current = new IntersectionObserver(
       (entries) => {
         const vis = entries
           .filter((e) => e.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
         if (vis[0]) {
-          const id = vis[0].target.id;
+          const id = (vis[0].target as HTMLElement).id;
           setActive((prev) => (prev === id ? prev : id));
         }
       },
       { rootMargin: "-35% 0px -50% 0px", threshold: [0.1, 0.25, 0.5, 0.75] }
     );
+    sections.forEach((s) => ioRef.current!.observe(s));
+    // сразу синхронизируем активную секцию (без ожидания событий)
+    computeActive();
+  };
 
-    sections.forEach((s) => io.observe(s));
-    return () => io.disconnect();
+  useEffect(() => {
+    bindSections();
+    return () => ioRef.current?.disconnect();
   }, []);
 
+  // при смене языка DOM перерисовывается → перепривяжем наблюдатель и пересчитаем активную
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      bindSections();
+      computeActive();
+    });
+  }, [lang]);
+
   // «магнитный» ховер ссылок
-  const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({ });
-  const handleMagnet = (id: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
-    const el = linkRefs.current[id];
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width - 0.5;
-    const y = (e.clientY - r.top) / r.height - 0.5;
-    el.style.setProperty("--x", (x * 8).toFixed(2) + "px");
-    el.style.setProperty("--y", (y * 5).toFixed(2) + "px");
-  };
+  const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+  const handleMagnet =
+    (id: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
+      const el = linkRefs.current[id];
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      el.style.setProperty("--x", (x * 8).toFixed(2) + "px");
+      el.style.setProperty("--y", (y * 5).toFixed(2) + "px");
+    };
 
   // плавный скролл к секции
   const handleNavClick = (id: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -76,8 +125,13 @@ export default function Header() {
     if (target) {
       target.scrollIntoView({ behavior: "smooth", block: "start" });
       history.replaceState(null, "", `#${id}`);
-      setOpen(false);
+    } else if (id === "home") {
+      // если #home нет в DOM — просто прокручиваем к верху
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      history.replaceState(null, "", "#home");
     }
+    setOpen(false);
+    requestAnimationFrame(() => computeActive());
   };
 
   // закрывать меню при смене hash извне
@@ -105,6 +159,43 @@ export default function Header() {
       window.removeEventListener("resize", apply as any);
     };
   }, []);
+
+  // красивый и абсолютно «бездвижный» переключатель языка
+  const toggleLang = () => {
+    const next = lang === "ru" ? "en" : "ru";
+
+    // фиксируем точные координаты, чтобы НЕ было перемещения
+    const x = window.scrollX;
+    const y = window.scrollY;
+
+    // отключаем влияние плавной прокрутки и автопереноса
+    try { (history as any).scrollRestoration = "manual"; } catch {}
+    const html = document.documentElement;
+    const prevScrollBehavior = html.style.scrollBehavior;
+    html.style.scrollBehavior = "auto";
+
+    // мягкий визуальный эффект (не влияет на позицию)
+    html.classList.add("lang-switching");
+
+    // меняем язык
+    setLang(next);
+
+    // обновляем только query ?lang= — hash НЕ трогаем вообще
+    try {
+      const sp = new URLSearchParams(location.search);
+      sp.set("lang", next);
+      history.replaceState(null, "", `${location.pathname}?${sp.toString()}${location.hash}`);
+    } catch {}
+
+    // восстанавливаем ровно те же координаты и пересчитываем активную ссылку
+    requestAnimationFrame(() => {
+      window.scrollTo(x, y); // ровно туда же
+      html.style.scrollBehavior = prevScrollBehavior;
+      computeActive();
+      // снимаем мягкий эффект
+      setTimeout(() => html.classList.remove("lang-switching"), 420);
+    });
+  };
 
   return (
     <>
@@ -142,6 +233,7 @@ export default function Header() {
           {/* Лого = ник + сердечко */}
           <a
             href="#home"
+            onClick={handleNavClick("home")}
             className="inline-flex items-center gap-2 rounded-2xl px-2 py-1 select-none"
             aria-label="Наверх"
             title={nick}
@@ -151,7 +243,9 @@ export default function Header() {
               const x = (e.clientX - r.left) / r.width - 0.5;
               t.style.setProperty("--tilt", (x * 3).toFixed(2) + "deg");
             }}
-            onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.removeProperty("--tilt")}
+            onMouseLeave={(e) =>
+              (e.currentTarget as HTMLElement).style.removeProperty("--tilt")
+            }
             style={{
               transform: "perspective(400px) rotateY(var(--tilt, 0deg))",
               transition: "transform 320ms ease",
@@ -177,7 +271,9 @@ export default function Header() {
                 <a
                   key={item.id}
                   href={`#${item.id}`}
-                  ref={(el) => { linkRefs.current[item.id] = el; }}
+                  ref={(el) => {
+                    linkRefs.current[item.id] = el;
+                  }}
                   onClick={handleNavClick(item.id)}
                   className={[
                     "kawaii-link px-3 py-2 rounded-xl text-sm relative",
@@ -190,8 +286,10 @@ export default function Header() {
                     el.style.removeProperty("--y");
                   }}
                   style={{
-                    transform: "translate(var(--x, 0px), var(--y, 0px)) translateZ(0)",
-                    transition: "transform 200ms ease, color 220ms ease, background 220ms ease",
+                    transform:
+                      "translate(var(--x, 0px), var(--y, 0px)) translateZ(0)",
+                    transition:
+                      "transform 200ms ease, color 220ms ease, background 220ms ease",
                   }}
                 >
                   <span
@@ -204,7 +302,7 @@ export default function Header() {
                     }}
                     aria-hidden
                   />
-                  {item.label}
+                  {t(item.label)}
                 </a>
               );
             })}
@@ -212,7 +310,21 @@ export default function Header() {
 
           {/* Кнопки справа */}
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleLang}
+              className="lang-toggle border border-[var(--chip-border)] bg-[var(--chip-bg)] hover:bg-[var(--chip-hover)]"
+              aria-label={t("footer.toggleLang")}
+              title={t("footer.toggleLang")}
+              data-state={lang}
+            >
+              <span className="lang-opt">RU</span>
+              <span className="lang-opt">EN</span>
+              <span className="lang-dot" aria-hidden />
+            </button>
+
             <ThemeToggle />
+
             {/* burger (mobile) */}
             <button
               type="button"
@@ -221,7 +333,7 @@ export default function Header() {
               onClick={() => setOpen(true)}
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
               </svg>
             </button>
           </div>
@@ -275,14 +387,23 @@ export default function Header() {
                     "block kawaii-link px-3 py-3 rounded-xl text-[15px]",
                     active === item.id ? "is-active" : "",
                   ].join(" ")}
-                  style={{
-                    transition: "transform 200ms ease, color 220ms ease, background 220ms ease",
-                  }}
                 >
-                  {item.label}
+                  {t(item.label)}
                 </a>
               ))}
-              <div className="px-3 pt-3">
+              <div className="px-3 pt-3 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={toggleLang}
+                  className="lang-toggle border border-[var(--chip-border)] bg-[var(--chip-bg)] hover:bg-[var(--chip-hover)]"
+                  data-state={lang}
+                  aria-label={t("footer.toggleLang")}
+                  title={t("footer.toggleLang")}
+                >
+                  <span className="lang-opt">RU</span>
+                  <span className="lang-opt">EN</span>
+                  <span className="lang-dot" aria-hidden />
+                </button>
                 <ThemeToggle />
               </div>
             </nav>

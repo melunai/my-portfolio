@@ -1,33 +1,26 @@
-import type { PropsWithChildren } from "react";
 import { motion } from "framer-motion";
-import { useIOInView } from "./useIOInView";
+import React from "react";
 
-export default function SectionLead({ children }: PropsWithChildren) {
-  const { ref, inView } = useIOInView<HTMLParagraphElement>({
-    once: true,
-    rootMargin: "-30% 0% -45% 0%",
-  });
-  const variants = {
-    hide: { opacity: 0, y: 12 },
-    show: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as any },
-    },
-  };
+type SectionLeadProps = {
+  children: React.ReactNode;
+  className?: string;
+};
 
+/**
+ * Подзаголовок (лид) для секции.
+ * Использует класс .ty-subtitle для единого управления типографикой.
+ */
+export default function SectionLead({
+  children,
+  className = "",
+}: SectionLeadProps) {
   return (
     <motion.p
-      ref={ref}
-      initial="hide"
-      animate={inView ? "show" : "hide"}
-      variants={variants}
-      className="
-        glass-lead
-        text-center max-w-3xl mx-auto mb-10
-        text-[1.35rem] md:text-[1.6rem]
-        leading-relaxed tracking-wide
-      "
+      className={`ty-subtitle lg text-center max-w-2xl mx-auto mb-12 opacity-90 ${className}`}
+      initial={{ opacity: 0, y: 10 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+      viewport={{ once: true }}
     >
       {children}
     </motion.p>
