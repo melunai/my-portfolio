@@ -1,4 +1,4 @@
-import { motion, useMotionValue, useTransform } from "framer-motion";
+import { motion, useMotionValue} from "framer-motion";
 import { Mail, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -8,8 +8,6 @@ export default function Hero() {
   const { t } = useI18n();
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  const rotateX = useTransform(y, [-1, 1], [5, -5]);
-  const rotateY = useTransform(x, [-1, 1], [-5, 5]);
   const [ready, setReady] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   
@@ -49,11 +47,7 @@ export default function Hero() {
     >
       {/* === Основной контент === */}
 <motion.div
-  style={
-    isMobile
-      ? { transformStyle: "preserve-3d" }
-      : { rotateX, rotateY, transformStyle: "preserve-3d" }
-  }
+  style={{ transformStyle: "preserve-3d" }}
 className="z-10 mx-auto flex w-full max-w-[calc(100vw-2rem)] flex-col items-center overflow-hidden"
   initial={{ opacity: 0, y: 80, filter: "blur(12px)" }}
   animate={{
