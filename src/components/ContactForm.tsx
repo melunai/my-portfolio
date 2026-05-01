@@ -167,11 +167,20 @@ export default function ContactForm({
               }`}
               placeholder=" "
             />
-            <label className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm opacity-70 transition-all peer-focus:top-1 peer-focus:text-xs peer-focus:opacity-100 peer-not-placeholder-shown:top-1 peer-not-placeholder-shown:text-xs">
+            <label
+              className="
+                ty-body pointer-events-none absolute left-3 top-1/2 -translate-y-1/2
+                text-sm opacity-70 transition-all
+                peer-focus:top-1 peer-focus:text-xs peer-focus:opacity-100
+                peer-not-placeholder-shown:top-1 peer-not-placeholder-shown:text-xs
+              "
+            >
               {t("sections.contact.email")}
             </label>
             {errors.email && (
-              <p className="mt-1 text-xs text-red-400">{errors.email}</p>
+              <p className="ty-body mt-1 text-xs text-red-400">
+                {errors.email}
+              </p>
             )}
           </div>
 
@@ -188,11 +197,20 @@ export default function ContactForm({
               }`}
               placeholder=" "
             />
-            <label className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm opacity-70 transition-all peer-focus:top-1 peer-focus:text-xs peer-focus:opacity-100 peer-not-placeholder-shown:top-1 peer-not-placeholder-shown:text-xs">
+            <label
+              className="
+                ty-body pointer-events-none absolute left-3 top-1/2 -translate-y-1/2
+                text-sm opacity-70 transition-all
+                peer-focus:top-1 peer-focus:text-xs peer-focus:opacity-100
+                peer-not-placeholder-shown:top-1 peer-not-placeholder-shown:text-xs
+              "
+            >
               {t("sections.contact.telegram")} ({defaultTelegram})
             </label>
             {errors.telegram && (
-              <p className="mt-1 text-xs text-red-400">{errors.telegram}</p>
+              <p className="ty-body mt-1 text-xs text-red-400">
+                {errors.telegram}
+              </p>
             )}
           </div>
         </div>
@@ -210,15 +228,24 @@ export default function ContactForm({
             }`}
             placeholder=" "
           />
-          <label className="pointer-events-none absolute left-3 top-3 text-sm opacity-70 transition-all peer-focus:top-2 peer-focus:text-xs peer-focus:opacity-100 peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:text-xs">
+          <label
+            className="
+              ty-body pointer-events-none absolute left-3 top-3
+              text-sm opacity-70 transition-all
+              peer-focus:top-2 peer-focus:text-xs peer-focus:opacity-100
+              peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:text-xs
+            "
+          >
             {t("sections.contact.messageLabel")}
           </label>
           <div className="mt-1 flex items-center justify-between text-xs opacity-80">
-            <span>
+            <span className="ty-body">
               {msgLen}/2000&nbsp;{t("sections.contact.msgCounter")}
             </span>
             {errors.message && (
-              <p className="text-red-400">{errors.message}</p>
+              <p className="ty-body text-xs text-red-400">
+                {errors.message}
+              </p>
             )}
           </div>
         </div>
@@ -232,12 +259,17 @@ export default function ContactForm({
             onChange={(e) => setConsent(e.target.checked)}
             className="mt-1"
           />
-          <label htmlFor="consent" className="text-sm opacity-90">
+          <label
+            htmlFor="consent"
+            className="ty-body text-sm opacity-90"
+          >
             {t("sections.contact.consent")}
           </label>
         </div>
         {errors.consent && (
-          <p className="text-xs text-red-400">{errors.consent}</p>
+          <p className="ty-body text-xs text-red-400">
+            {errors.consent}
+          </p>
         )}
 
         {/* Кнопка */}
@@ -257,7 +289,7 @@ export default function ContactForm({
 
           {sent === "ok" && (
             <span
-              className="text-sm"
+              className="ty-body text-sm"
               style={{
                 color:
                   "color-mix(in oklab, var(--accent), white 20%)",
@@ -268,7 +300,7 @@ export default function ContactForm({
           )}
           {sent === "fail" && (
             <span
-              className="text-sm"
+              className="ty-body text-sm"
               style={{ color: "rgb(248 113 113)" }}
             >
               {t("sections.contact.sentFail", targetEmail)}
@@ -276,7 +308,7 @@ export default function ContactForm({
           )}
         </div>
 
-        <p className="text-xs opacity-75 text-center">
+        <p className="ty-body text-xs opacity-75 text-center">
           {t("sections.contact.footnote")}
         </p>
 

@@ -219,7 +219,7 @@ export default function Testimonials() {
             >
               <GlassCard className="p-6 md:p-7">
                 <figure className="text-center">
-                  <blockquote className="text-[15px] leading-relaxed opacity-90">
+                  <blockquote className="ty-body text-[15px] leading-relaxed opacity-90">
                     “{current.quote[lang]}”
                   </blockquote>
                   <figcaption className="mt-4 text-sm">

@@ -58,13 +58,13 @@ export default function Metrics() {
               </div>
 
               {/* локализованный label */}
-              <div className="mt-2 text-sm opacity-80">
+              <div className="ty-body mt-2 text-sm opacity-80">
                 {m.label[lang]}
               </div>
 
               {/* локализованный hint */}
               {m.hint && (
-                <div className="mt-1 text-xs opacity-60">
+                <div className="ty-body mt-1 text-xs opacity-60">
                   {m.hint[lang]}
                 </div>
               )}

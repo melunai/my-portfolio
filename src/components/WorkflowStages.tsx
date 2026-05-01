@@ -1,3 +1,4 @@
+// src/components/WorkflowStages.tsx
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import Section from "./Section";
@@ -5,15 +6,15 @@ import SectionLead from "./SectionLead";
 import { useI18n } from "../i18n/i18n";
 import { useIOInView } from "./useIOInView";
 
-
 export default function WorkflowStages() {
-  const { t } = useI18n(); {
+  const { t } = useI18n();
   const { ref, inView } = useIOInView<HTMLDivElement>({ once: true });
 
-    const STAGES = t("sections.workflow.stages") as Array<{
+  const STAGES = t("sections.workflow.stages") as Array<{
     title: string;
     text: string;
   }>;
+
   const variants = {
     hide: { opacity: 0, y: 16 },
     show: (i: number) => ({
@@ -25,9 +26,7 @@ export default function WorkflowStages() {
 
   return (
     <Section id="workflow" title={t("sections.workflow.title")}>
-      <SectionLead>
-        {t("sections.workflow.lead")}
-      </SectionLead>
+      <SectionLead>{t("sections.workflow.lead")}</SectionLead>
 
       <div
         ref={ref}
@@ -72,7 +71,7 @@ export default function WorkflowStages() {
               <h3 className="text-lg font-semibold text-[color:var(--fg)] mb-2">
                 {stage.title}
               </h3>
-              <p className="text-sm text-[color:var(--text-muted)] leading-relaxed">
+              <p className="ty-body text-sm text-[color:var(--text-muted)] leading-relaxed">
                 {stage.text}
               </p>
             </div>
@@ -105,5 +104,4 @@ export default function WorkflowStages() {
       `}</style>
     </Section>
   );
-}
 }

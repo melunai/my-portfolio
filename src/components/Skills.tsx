@@ -1,3 +1,5 @@
+// src/components/Skills.tsx
+import type React from "react";
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Section from "./Section";
@@ -9,20 +11,23 @@ import { DATA, skillMeta } from "../data";
 import Confetti from "react-confetti";
 
 export default function Skills() {
-  const { t } = useI18n(); {
+  const { t } = useI18n();
   const [confetti, setConfetti] = useState<{ key: number; x: number; y: number } | null>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const lastPlayRef = useRef(0);
+
   const playBubble = () => {
     const now = performance.now();
     if (now - lastPlayRef.current < 120) return;
     lastPlayRef.current = now;
+
     if (!audioRef.current) {
       const a = new Audio("/sounds/bubble.mp3");
       a.volume = 0.35;
       audioRef.current = a;
     }
+
     const a = audioRef.current;
     try {
       a.currentTime = 0;
@@ -42,11 +47,11 @@ export default function Skills() {
   };
 
   const LEAD_DELAY = 0.35;
-  const BODY_DELAY = 0.70;
+  const BODY_DELAY = 0.7;
 
   return (
     <Section id="skills" title={t("sections.skills.title")}>
-      {/* 2) Подзаголовок */}
+      {/* Подзаголовок */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -56,7 +61,7 @@ export default function Skills() {
         <SectionLead>{t("sections.skills.lead")}</SectionLead>
       </motion.div>
 
-      {/* 3) Основной блок со скиллами */}
+      {/* Основной блок со скиллами */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -149,5 +154,4 @@ export default function Skills() {
       </motion.div>
     </Section>
   );
-}
 }

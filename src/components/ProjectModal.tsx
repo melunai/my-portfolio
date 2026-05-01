@@ -311,7 +311,7 @@ export default function ProjectModal({ project, onClose }: Props) {
                     {title}
                   </h3>
                   {description && (
-                    <p className="text-xs sm:text-sm opacity-80 mt-0.5 line-clamp-3">
+                    <p className="ty-body text-xs sm:text-sm opacity-80 mt-0.5 line-clamp-3">
                       {description}
                     </p>
                   )}
@@ -405,7 +405,7 @@ export default function ProjectModal({ project, onClose }: Props) {
                           draggable={false}
                         />
                       ) : (
-                        <div className="absolute inset-0 grid place-items-center text-sm opacity-70 px-4 text-center">
+                        <div className="ty-body absolute inset-0 grid place-items-center text-sm opacity-70 px-4 text-center">
                           {noImagesText}
                         </div>
                       )}
@@ -532,7 +532,7 @@ export default function ProjectModal({ project, onClose }: Props) {
                         <h4 className="text-sm font-semibold mb-2">
                           {highlightsTitle}
                         </h4>
-                          <ul className="list-disc pl-5 text-sm opacity-90 space-y-1">
+                        <ul className="ty-body list-disc pl-5 text-sm opacity-90 space-y-1">
                           {highlights.map((h, i) => (
                             <li key={i}>{h}</li>
                           ))}
@@ -545,7 +545,7 @@ export default function ProjectModal({ project, onClose }: Props) {
                         <h4 className="text-sm font-semibold mb-2">
                           {rolesTitle}
                         </h4>
-                        <ul className="list-disc pl-5 text-sm opacity-90 space-y-1">
+                        <ul className="ty-body list-disc pl-5 text-sm opacity-90 space-y-1">
                           {roles.map((r, i) => (
                             <li key={i}>{r}</li>
                           ))}
@@ -554,7 +554,7 @@ export default function ProjectModal({ project, onClose }: Props) {
                     )}
 
                     {project.period && (
-                      <div className="text-sm opacity-80">
+                      <div className="ty-body text-sm opacity-80">
                         <span className="font-medium">
                           {periodTitle}:
                         </span>{" "}

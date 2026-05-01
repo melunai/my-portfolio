@@ -257,7 +257,7 @@ export default function Projects() {
             className="btn px-3 py-1.5"
             aria-label={t("sections.projects.next") || "Следующий проект"}
           >
-            →
+            →  
           </button>
         </div>
 
@@ -344,7 +344,7 @@ export default function Projects() {
                     <div className="font-medium text-[color:var(--fg)] line-clamp-1 text-base">
                       {p.title[lang]}
                     </div>
-                    <p className="mt-1 text-sm opacity-80 line-clamp-2">
+                    <p className="ty-body mt-1 text-sm opacity-80 line-clamp-2">
                       {p.description[lang]}
                     </p>
 
@@ -561,6 +561,7 @@ function SlideCard({
             </h3>
             <p
               className="
+                ty-body
                 text-sm text-[color:var(--text-muted)]
                 leading-relaxed line-clamp-3
                 transition-all duration-300

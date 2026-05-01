@@ -17,6 +17,15 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "TT Norms Condensed";
+  src: url("/src/assets/fonts/TTNormsStdTrialCondensedRegular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+
 
 html, body { overflow-x: clip; }
 /* 3) База */
@@ -507,11 +516,10 @@ body {
 }
 
 /* === Typography roles === */
-/* === Typography roles === */
 
 /* 🩷 Заголовки */
 .ty-title {
-  font-family: "Jun_Italic", "Inter", sans-serif;
+  font-family: "Jun_Italic", sans-serif;
   font-weight: 300;
   text-transform: uppercase;
   letter-spacing: 0.025em;
@@ -542,7 +550,8 @@ body {
 
 /* 🔠 Размеры заголовков */
 .ty-title.xl {
-  font-size: clamp(8rem, 7vw, 6rem);   /* Hero */
+  padding-top: 0.1em;
+  font-size: clamp(2.2rem, 7vw, 5.5rem);
   line-height: 1.05;
 }
 
@@ -558,7 +567,7 @@ body {
 
 /* 🩵 Подзаголовки / лиды */
 .ty-subtitle {
-  font-family: "Novelist", "Inter", sans-serif;
+  font-family: "Novelist", sans-serif;
   font-weight: 300;
   letter-spacing: 0.02em;
   line-height: 1.6;
@@ -582,7 +591,7 @@ body {
 
 /* 🔠 Размеры подзаголовков */
 .ty-subtitle.lg {
-  font-size: 1.5rem; /* лиды секций */
+  font-size: clamp(1rem, 2.5vw, 1.3rem);/* лиды секций */
   line-height: 1.6;
 }
 
@@ -596,13 +605,30 @@ body {
   line-height: 1.5;
 }
 
-/* 💬 Основной текст */
 .ty-body {
-  font-family: var(--font-body, "Inter"), system-ui, sans-serif;
-  font-weight: var(--fw-body, 400);
+  font-family: var(--font-body, "TT Norms Condensed"), system-ui, sans-serif;
+  font-weight: 400;
   font-size: 1rem;
   line-height: 1.7;
+  letter-spacing: 0.01em;
+
+  /* честный, резкий цвет текста */
+  color: color-mix(in oklab, var(--fg), white 4%);
+
+  /* очень лёгкий объём через один мягкий тень-штрих */
+  text-shadow:
+    0 0.5px 0 color-mix(in oklab, var(--fg), white 40%);
+
+  /* НИКАКИХ drop-shadow и прозрачной заливки */
+  -webkit-background-clip: border-box;
+  -webkit-text-fill-color: currentColor;
+  filter: none;
+
+  transition:
+    color .35s ease,
+    text-shadow .35s ease;
 }
+
 
 /* === Language toggle (glass pill) === */
 .lang-toggle{

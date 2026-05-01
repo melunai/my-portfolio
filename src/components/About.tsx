@@ -76,18 +76,18 @@ export default function About() {
         initial="hide"
         animate={inView ? "show" : "hide"}
         variants={container}
-        className="relative flex flex-col items-center gap-8 text-center md:flex-row md:items-stretch md:text-left"
+        className="relative mx-auto flex flex-col items-center gap-8 text-center md:flex-row md:items-stretch md:text-left md:justify-center max-w-5xl"
       >
         {/* Основной текст — большая стеклянная карточка */}
         <motion.div
           variants={card}
           className="backdrop-blur-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-3xl p-8 max-w-3xl w-full shadow-[0_0_40px_-20px_var(--glow)]"
         >
-          <p className="opacity-90 mb-3">{introLine}</p>
+          <p className="ty-body opacity-90 mb-3">{introLine}</p>
 
-          <p className="opacity-90 mb-3">{DATA.about[lang]}</p>
+          <p className="ty-body opacity-90 mb-3">{DATA.about[lang]}</p>
 
-          <p className="opacity-90">{closingLine}</p>
+          <p className="ty-body opacity-90">{closingLine}</p>
         </motion.div>
 
         {/* Контакты — компактная боковая карточка */}
@@ -97,8 +97,8 @@ export default function About() {
         >
           <div className="space-y-2">
             <h3 className="text-lg font-semibold">{contactsTitle}</h3>
-            <p className="text-sm opacity-80">{contactsLead}</p>
-            <p className="text-sm opacity-80">
+            <p className="ty-body text-sm opacity-80">{contactsLead}</p>
+            <p className="ty-body text-sm opacity-80">
               {basedIn}
               <span className="font-medium">{DATA.location[lang]}</span>
             </p>

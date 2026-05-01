@@ -2,11 +2,26 @@ import { motion } from "framer-motion";
 import { useRef } from "react";
 import type { Project } from "../data";
 import { useIOInView } from "./useIOInView";
+import { useI18n } from "../i18n/i18n";
 
 type Props = { project: Project; onOpen?: (p: Project) => void };
 
+// если часть проектов ещё со старыми строками — аккуратно вытаскиваем
+function pickLocalized(value: any, lang: string): string {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "object" && (value.ru || value.en)) {
+    return value[lang] ?? value.ru ?? value.en ?? "";
+  }
+  return String(value);
+}
+
 export default function ProjectCard({ project: p, onOpen }: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
+  const { lang } = useI18n();
+
+  const title = pickLocalized(p.title as any, lang);
+  const description = pickLocalized(p.description as any, lang);
 
   // hover-tilt
   const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -55,7 +70,7 @@ export default function ProjectCard({ project: p, onOpen }: Props) {
         onKeyDown={(e) =>
           (e.key === "Enter" || e.key === " ") && (e.preventDefault(), open())
         }
-        aria-label={`Открыть проект ${p.title}`}
+        aria-label={`Открыть проект ${title}`}
         className="
           group relative cursor-pointer overflow-hidden rounded-3xl
           card bordered
@@ -86,7 +101,7 @@ export default function ProjectCard({ project: p, onOpen }: Props) {
           <div className="aspect-[16/10] w-full">
             <img
               src={p.image}
-              alt={p.title}
+              alt={title}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
               loading="lazy"
               decoding="async"
@@ -105,9 +120,9 @@ export default function ProjectCard({ project: p, onOpen }: Props) {
 
         <div className="p-5 theme-colors">
           <h3 className="text-base sm:text-lg font-semibold tracking-tight">
-            {p.title}
+            {title}
           </h3>
-          <p className="mt-2 text-sm leading-relaxed">{p.description}</p>
+          <p className="mt-2 text-sm leading-relaxed">{description}</p>
 
           {!!p.stack?.length && (
             <div className="mt-3 flex flex-wrap gap-1.5">

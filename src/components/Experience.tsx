@@ -229,14 +229,18 @@ export default function Experience() {
                                          bg-[var(--chip-bg)] border border-[var(--chip-border)]"
                             >
                               <Building2 className="size-3.5 opacity-80" />
-                              {company}
+                              <span className="ty-body">
+                                {company}
+                              </span>
                             </span>
                             <span
                               className="inline-flex items-center gap-1.5 rounded-xl px-2 py-1
                                          bg-[var(--chip-bg)] border border-[var(--chip-border)]"
                             >
                               <CalendarDays className="size-3.5 opacity-80" />
-                              {period}
+                              <span className="ty-body">
+                                {period}
+                              </span>
                             </span>
                           </div>
                         </div>
@@ -303,7 +307,9 @@ export default function Experience() {
                                         : "var(--confetti2)",
                                   }}
                                 />
-                                <span>{pickText(p, lang)}</span>
+                                <span className="ty-body">
+                                  {pickText(p, lang)}
+                                </span>
                               </motion.li>
                             ))}
                           </motion.ul>

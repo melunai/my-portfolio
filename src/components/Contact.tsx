@@ -71,7 +71,7 @@ export default function Contact(): JSX.Element {
                   className="inline-flex items-center gap-2 rounded-xl px-3 py-2 bordered hover:shadow-md transition"
                 >
                   <Mail className="size-4 opacity-80" />
-                  <span>{DATA.email}</span>
+                  <span className="ty-body">{DATA.email}</span>
                 </a>
 
                 {DATA.telegram && (
@@ -82,7 +82,7 @@ export default function Contact(): JSX.Element {
                     className="inline-flex items-center gap-2 rounded-xl px-3 py-2 bordered hover:shadow-md transition"
                   >
                     <Send className="size-4 opacity-80" />
-                    <span>{DATA.telegram}</span>
+                    <span className="ty-body">{DATA.telegram}</span>
                   </a>
                 )}
               </div>

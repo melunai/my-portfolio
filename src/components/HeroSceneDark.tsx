@@ -12,7 +12,15 @@ export type HeroSceneProps = {
 
 export default function HeroSceneDark({ mouse, exploding = false }: HeroSceneProps) {
   return (
-    <Canvas camera={{ position: [0, 0, 3.8], fov: 55 }} onCreated={({ gl }) => gl.setClearColor("#050507", 1)}>
+<Canvas
+  dpr={[1, 1.25]}
+  performance={{ min: 0.5 }}
+  camera={{ position: [0, 0, 3.8], fov: 55 }}
+  onCreated={({ gl }) => {
+    gl.setClearColor("#050507", 1);
+    gl.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
+  }}
+>
       <ambientLight intensity={0.5} />
       <pointLight position={[2, 3, 4]} intensity={1.15} color="#ffb347" />
 
@@ -23,7 +31,7 @@ export default function HeroSceneDark({ mouse, exploding = false }: HeroScenePro
       <ExplosionLight active={exploding} />
 
       {/* Звёзды и эффекты */}
-      <Stars radius={200} depth={100} count={7500} factor={2.4} fade />
+      <Stars radius={160} depth={80} count={2000} factor={2} fade />
       <ExplosionPostFX active={exploding} />
     </Canvas>
   );
@@ -32,7 +40,7 @@ export default function HeroSceneDark({ mouse, exploding = false }: HeroScenePro
 /* ========================= PARTICLES ========================= */
 function SunPoints({ mouse, exploding }: HeroSceneProps) {
   const ref = useRef<THREE.Points>(null!);
-  const count = 14000;
+  const count = 5000;
 
   const positions = useMemo(() => {
     const arr = new Float32Array(count * 3);
